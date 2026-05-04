@@ -169,7 +169,10 @@ def parse_and_save_data(html, profile_url):
                 title = EXCLUDED.title,
                 chapter_count = EXCLUDED.chapter_count,
                 genre = EXCLUDED.genre,
-                last_change_at = EXCLUDED.last_change_at
+                last_change_at = CASE 
+                    WHEN wn_books.chapter_count <> EXCLUDED.chapter_count THEN EXCLUDED.last_change_at 
+                    ELSE wn_books.last_change_at 
+                END
             """, (book_id, profile_id, b.get('bookName'), b.get('chapterNum'), b.get('categoryName'), now))
             
         conn.commit()
