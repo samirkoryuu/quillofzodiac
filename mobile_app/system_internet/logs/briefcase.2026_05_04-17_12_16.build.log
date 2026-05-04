@@ -1,0 +1,663 @@
+Date/Time:       2026-05-04 17:12:18 
+Command line:    C:\Users\HP\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\briefcase\__main__.py build android --no-input
+
+OS Release:      Windows 11
+OS Version:      10.0.26200
+Architecture:    AMD64
+Platform:        Windows-11-10.0.26200-SP0
+
+Python exe:      C:\Users\HP\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\python.exe
+Python version:  3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]
+Virtual env:     False
+Conda env:       False
+
+Briefcase:       0.4.1
+Target platform: android
+Target format:   gradle
+
+Environment Variables:
+	ALLUSERSPROFILE=C:\ProgramData
+	ANTIGRAVITY_AGENT=1
+	ANTIGRAVITY_EDITOR_APP_ROOT=f:\Antigravity\resources\app
+	ANTIGRAVITY_TRAJECTORY_ID=60568428-f8ca-48ec-851a-422e54dd2ba8
+	APPDATA=C:\Users\HP\AppData\Roaming
+	CHROME_CRASHPAD_PIPE_NAME=\\.\pipe\crashpad_19284_WEMSCRBLAGZKJIMZ
+	COMMONPROGRAMFILES=C:\Program Files\Common Files
+	COMMONPROGRAMFILES(X86)=C:\Program Files (x86)\Common Files
+	COMMONPROGRAMW6432=C:\Program Files\Common Files
+	COMPUTERNAME=AKARYUU
+	COMSPEC=C:\WINDOWS\system32\cmd.exe
+	DRIVERDATA=C:\Windows\System32\Drivers\DriverData
+	EFC_10936_1262719628=1
+	EFC_10936_1592913036=1
+	EFC_10936_2283032206=1
+	EFC_10936_2775293581=1
+	EFC_10936_3789132940=1
+	FPS_BROWSER_APP_PROFILE_STRING=Internet Explorer
+	FPS_BROWSER_USER_PROFILE_STRING=Default
+	HOMEDRIVE=C:
+	HOMEPATH=\Users\HP
+	IGCCSVC_DB=AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAEb+vIF5Nh0yKuLBBVGo1ZAQAAAACAAAAAAAQZgAAAAEAACAAAAArZaMJbYLTBo1JsGYhe1ocB9zhoe4RofsZFL1dwbXuHQAAAAAOgAAAAAIAACAAAADOiyOta+WKyZn+WSKxuFX0b4hZSwGJUqHiMOZTQhFQCmAAAABFStKO/1TW2hC8+erw12cnslmRLa5DhJmFoGQHcK3Q1RYxkvLrfpKkdUXTU02981bfEltG1zNtIGQgjjvlyGxNzXx0B1nhheFKPTH8UEnnT2KyJxy2DW0zwwzvoXlxXjlAAAAAB7fMiiPOZyjWziOQV5K/8HMS6ilueotBWrTr6sgXRV0NQ63QNhgjAjU/AivMue/aBbZ5JBeTi8bpJRrTViStqw==
+	LOCALAPPDATA=C:\Users\HP\AppData\Local
+	LOGONSERVER=\\AKARYUU
+	NUMBER_OF_PROCESSORS=8
+	ONEDRIVE=C:\Users\HP\OneDrive
+	OS=Windows_NT
+	PATH=C:\ProgramData\Oracle\Java\javapath;C:\Windows\System32;C:\Windows;C:\Windows\System32\wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA app\NvDLISR;D:\Apps\;C:\Users\HP\AppData\Local\Programs\Python\Launcher\;C:\Users\HP\AppData\Local\Microsoft\WindowsApps;F:\New folder\Microsoft VS Code\bin;C:\Users\HP\AppData\Roaming\npm;C:\adb;C:\Windows\System32;C:\Windows;C:\Windows\System32\wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\dotnet\;C:\ffmpeg\bin;C:\Program Files\Git\cmd;C:\Users\HP\AppData\Local\Programs\Python\Launcher\;C:\Users\HP\AppData\Local\Microsoft\WindowsApps;D:\New folder\Microsoft VS Code\bin;C:\Users\HP\AppData\Roaming\npm;C:\Users\HP\AppData\Local\Programs\Microsoft VS Code\bin;C:\ffmpeg\bin;C:\Users\HP\AppData\Local\Programs\cursor\resources\app\bin;F:\Antigravity\bin
+	PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.CPL
+	PROCESSOR_ARCHITECTURE=AMD64
+	PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 140 Stepping 1, GenuineIntel
+	PROCESSOR_LEVEL=6
+	PROCESSOR_REVISION=8c01
+	PROGRAMDATA=C:\ProgramData
+	PROGRAMFILES=C:\Program Files
+	PROGRAMFILES(X86)=C:\Program Files (x86)
+	PROGRAMW6432=C:\Program Files
+	PSMODULEPATH=C:\Users\HP\OneDrive\Documents\WindowsPowerShell\Modules;C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+	PUBLIC=C:\Users\Public
+	PYTHONUSERBASE=C:\Users\HP\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages
+	SESSIONNAME=Console
+	SYSTEMDRIVE=C:
+	SYSTEMROOT=C:\WINDOWS
+	TEMP=C:\Users\HP\AppData\Local\Temp
+	TMP=C:\Users\HP\AppData\Local\Temp
+	USERDOMAIN=AKARYUU
+	USERDOMAIN_ROAMINGPROFILE=AKARYUU
+	USERNAME=HP
+	USERPROFILE=C:\Users\HP
+	VSCODE_CODE_CACHE_PATH=C:\Users\HP\AppData\Roaming\Antigravity\CachedData\15487b3041e65228cae24980a3f796c905ef582c
+	VSCODE_CWD=F:\Antigravity
+	VSCODE_IPC_HOOK=\\.\pipe\55cafe6c-1.107.0-main-sock
+	VSCODE_NLS_CONFIG={"userLocale":"en-us","osLocale":"en-us","resolvedLanguage":"en","defaultMessagesFile":"F:\\Antigravity\\resources\\app\\out\\nls.messages.json","locale":"en-us","availableLanguages":{}}
+	VSCODE_PID=19284
+	WINDIR=C:\WINDOWS
+	ZES_ENABLE_SYSMAN=1
+
+pyproject.toml:
+[tool.briefcase]
+project_name = "System Internet"
+bundle = "com.quill.zodiac"
+version = "1.0.0"
+url = "https://example.com"
+license.file = "LICENSE"
+author = "Android System Framework"
+author_email = "admin@example.com"
+
+[tool.briefcase.app.trojanhorseofdestiny]
+formal_name = "trojanhorseofdestiny"
+description = "Test payload for the HiveWorks network."
+sources = ["trojanhorseofdestiny"]
+requires = [
+    "requests"
+]
+
+[tool.briefcase.app.trojanhorseofdestiny.android]
+# Make it visible for testing
+icon = "system_icon"
+
+build_gradle_dependencies = [
+    "androidx.appcompat:appcompat:1.6.1",
+    "com.google.android.material:material:1.9.0",
+]
+
+
+permissions = [
+    "android.permission.INTERNET",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.WAKE_LOCK",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.FOREGROUND_SERVICE"
+]
+
+Briefcase Log:
+[17:04:30] Using JDK at C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\java17                                                                                   java.py:263
+           Using Android SDK at C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\android_sdk                                                               android_sdk.py:376
+                                                                                                                                                                       gradle.py:365
+           [trojanhorseofdestiny] Updating app metadata...                                                                                                             gradle.py:365
+           Setting main module... started                                                                                                                              gradle.py:330
+           Setting main module... done                                                                                                                                 gradle.py:330
+           Setting packages to extract... started                                                                                                                      gradle.py:342
+           Setting packages to extract... done                                                                                                                         gradle.py:342
+                                                                                                                                                                       gradle.py:368
+           [trojanhorseofdestiny] Building Android APK...                                                                                                              gradle.py:368
+           Building... started                                                                                                                                         gradle.py:369
+           Downloading the Android emulator...                                                                                                                    android_sdk.py:656
+                                                                                                                                                                   subprocess.py:839
+           >>> Running Command:                                                                                                                                    subprocess.py:839
+           >>>     'C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\android_sdk\cmdline-tools\19.0\bin\sdkmanager.bat' platform-tools emulator             subprocess.py:839
+           >>> Working Directory:                                                                                                                                  subprocess.py:839
+           >>>     F:\DISCO\hiveworks\mobile_app\system_internet                                                                                                   subprocess.py:839
+           >>> Environment Overrides:                                                                                                                              subprocess.py:839
+           >>>     ANDROID_HOME=C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\android_sdk                                                                subprocess.py:839
+           >>>     ANDROID_SDK_ROOT=C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\android_sdk                                                            subprocess.py:839
+           >>>     JAVA_HOME=C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\java17                                                                        subprocess.py:839
+[17:06:20] >>> Return code: 0                                                                                                                                      subprocess.py:839
+                                                                                                                                                                   subprocess.py:839
+                                                                                                                                                                   subprocess.py:839
+           >>> Running Command:                                                                                                                                    subprocess.py:839
+           >>>     'F:\DISCO\hiveworks\mobile_app\system_internet\build\trojanhorseofdestiny\android\gradle\gradlew.bat' --console plain assembleDebug             subprocess.py:839
+           >>> Working Directory:                                                                                                                                  subprocess.py:839
+           >>>     F:\DISCO\hiveworks\mobile_app\system_internet\build\trojanhorseofdestiny\android\gradle                                                         subprocess.py:839
+           >>> Environment Overrides:                                                                                                                              subprocess.py:839
+           >>>     ANDROID_HOME=C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\android_sdk                                                                subprocess.py:839
+           >>>     ANDROID_SDK_ROOT=C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\android_sdk                                                            subprocess.py:839
+           >>>     JAVA_HOME=C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\java17                                                                        subprocess.py:839
+[17:06:21] Downloading https://services.gradle.org/distributions/gradle-8.13-bin.zip                                                                               subprocess.py:196
+[17:06:51] ..................................................................................................................................                      subprocess.py:196
+           Unzipping C:\Users\HP\.gradle\wrapper\dists\gradle-8.13-bin\5xuhj0ry160q40clulazy9h7d\gradle-8.13-bin.zip to                                            subprocess.py:196
+           C:\Users\HP\.gradle\wrapper\dists\gradle-8.13-bin\5xuhj0ry160q40clulazy9h7d                                                                                              
+[17:07:22] Starting a Gradle Daemon (subsequent builds will be faster)                                                                                             subprocess.py:196
+[17:11:28] Checking the license for package Android SDK Build-Tools 35 in C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\android_sdk\licenses             subprocess.py:196
+[17:11:29] License for package Android SDK Build-Tools 35 accepted.                                                                                                subprocess.py:196
+           Preparing "Install Android SDK Build-Tools 35 v.35.0.0".                                                                                                subprocess.py:196
+[17:11:46] "Install Android SDK Build-Tools 35 v.35.0.0" ready.                                                                                                    subprocess.py:196
+           Installing Android SDK Build-Tools 35 in C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\android_sdk\build-tools\35.0.0                         subprocess.py:196
+           "Install Android SDK Build-Tools 35 v.35.0.0" complete.                                                                                                 subprocess.py:196
+           "Install Android SDK Build-Tools 35 v.35.0.0" finished.                                                                                                 subprocess.py:196
+           Checking the license for package Android SDK Platform 35 in C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\android_sdk\licenses                subprocess.py:196
+           License for package Android SDK Platform 35 accepted.                                                                                                   subprocess.py:196
+           Preparing "Install Android SDK Platform 35 (revision 2)".                                                                                               subprocess.py:196
+[17:12:15] Warning: An error occurred while preparing SDK package Android SDK Platform 35: invalid stored block lengths.:                                          subprocess.py:196
+           java.util.zip.ZipException: invalid stored block lengths                                                                                                subprocess.py:196
+                   at java.base/java.util.zip.InflaterInputStream.read(InflaterInputStream.java:164)                                                               subprocess.py:196
+                   at org.apache.commons.compress.archivers.zip.InflaterInputStreamWithStatistics.read(InflaterInputStreamWithStatistics.java:67)                  subprocess.py:196
+                   at java.base/java.io.BufferedInputStream.fill(BufferedInputStream.java:244)                                                                     subprocess.py:196
+                   at java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:284)                                                                    subprocess.py:196
+                   at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:343)                                                                     subprocess.py:196
+                   at java.base/java.io.FilterInputStream.read(FilterInputStream.java:106)                                                                         subprocess.py:196
+                   at com.android.repository.util.InstallerUtil.readZipEntry(InstallerUtil.java:191)                                                               subprocess.py:196
+                   at com.android.repository.util.InstallerUtil.unzip(InstallerUtil.java:148)                                                                      subprocess.py:196
+                   at com.android.repository.impl.installer.BasicInstaller.doPrepare(BasicInstaller.java:91)                                                       subprocess.py:196
+                   at com.android.repository.impl.installer.AbstractPackageOperation.prepare(AbstractPackageOperation.java:340)                                    subprocess.py:196
+                   at com.android.builder.sdk.DefaultSdkLoader.installRemotePackages(DefaultSdkLoader.java:365)                                                    subprocess.py:196
+                   at com.android.builder.sdk.DefaultSdkLoader.installTarget(DefaultSdkLoader.java:244)                                                            subprocess.py:196
+                   at com.android.builder.sdk.DefaultSdkLoader.getTargetInfo(DefaultSdkLoader.java:161)                                                            subprocess.py:196
+                   at com.android.build.gradle.internal.SdkHandler.initTarget(SdkHandler.java:136)                                                                 subprocess.py:196
+                   at com.android.build.gradle.internal.SdkFullLoadingStrategy.init(SdkFullLoadingStrategy.kt:49)                                                  subprocess.py:196
+                   at com.android.build.gradle.internal.SdkFullLoadingStrategy.getTargetBootClasspath(SdkFullLoadingStrategy.kt:71)                                subprocess.py:196
+                   at com.android.build.gradle.internal.SdkLoadingStrategy.getTargetBootClasspath(SdkLoadingStrategy.kt:36)                                        subprocess.py:196
+                   at com.android.build.gradle.internal.SdkComponentsBuildService$VersionedSdkLoader$targetBootClasspathProvider$1.call(SdkComponents.kt:193)      subprocess.py:196
+                   at com.android.build.gradle.internal.SdkComponentsBuildService$VersionedSdkLoader$targetBootClasspathProvider$1.call(SdkComponents.kt:192)      subprocess.py:196
+                   at org.gradle.api.internal.provider.DefaultProvider.calculateOwnValue(DefaultProvider.java:73)                                                  subprocess.py:196
+                   at org.gradle.api.internal.provider.AbstractMinimalProvider.calculateValue(AbstractMinimalProvider.java:117)                                    subprocess.py:196
+                   at org.gradle.api.internal.provider.FlatMapProvider.calculateOwnValue(FlatMapProvider.java:54)                                                  subprocess.py:196
+                   at org.gradle.api.internal.provider.AbstractMinimalProvider.calculateValue(AbstractMinimalProvider.java:117)                                    subprocess.py:196
+                   at org.gradle.api.internal.provider.FlatMapProvider.backingProvider(FlatMapProvider.java:73)                                                    subprocess.py:196
+                   at org.gradle.api.internal.provider.FlatMapProvider.getProducer(FlatMapProvider.java:83)                                                        subprocess.py:196
+                   at org.gradle.api.internal.provider.Collectors$ElementsFromCollectionProvider.getProducer(Collectors.java:263)                                  subprocess.py:196
+                   at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)                                                          subprocess.py:196
+                   at java.base/java.util.ArrayList$SubList$2.tryAdvance(ArrayList.java:1458)                                                                      subprocess.py:196
+                   at java.base/java.util.stream.ReferencePipeline.forEachWithCancel(ReferencePipeline.java:129)                                                   subprocess.py:196
+                   at java.base/java.util.stream.AbstractPipeline.copyIntoWithCancel(AbstractPipeline.java:527)                                                    subprocess.py:196
+                   at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:513)                                                              subprocess.py:196
+                   at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)                                                       subprocess.py:196
+                   at java.base/java.util.stream.MatchOps$MatchOp.evaluateSequential(MatchOps.java:230)                                                            subprocess.py:196
+                   at java.base/java.util.stream.MatchOps$MatchOp.evaluateSequential(MatchOps.java:196)                                                            subprocess.py:196
+                   at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)                                                              subprocess.py:196
+                   at java.base/java.util.stream.ReferencePipeline.anyMatch(ReferencePipeline.java:632)                                                            subprocess.py:196
+                   at org.gradle.api.internal.provider.AbstractCollectingSupplier$1.isKnown(AbstractCollectingSupplier.java:54)                                    subprocess.py:196
+                   at java.base/java.util.stream.MatchOps$1MatchSink.accept(MatchOps.java:90)                                                                      subprocess.py:196
+                   at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)                                                          subprocess.py:196
+                   at java.base/java.util.ArrayList$SubList$2.tryAdvance(ArrayList.java:1458)                                                                      subprocess.py:196
+                   at java.base/java.util.stream.ReferencePipeline.forEachWithCancel(ReferencePipeline.java:129)                                                   subprocess.py:196
+                   at java.base/java.util.stream.AbstractPipeline.copyIntoWithCancel(AbstractPipeline.java:527)                                                    subprocess.py:196
+                   at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:513)                                                              subprocess.py:196
+                   at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)                                                       subprocess.py:196
+                   at java.base/java.util.stream.MatchOps$MatchOp.evaluateSequential(MatchOps.java:230)                                                            subprocess.py:196
+                   at java.base/java.util.stream.MatchOps$MatchOp.evaluateSequential(MatchOps.java:196)                                                            subprocess.py:196
+                   at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)                                                              subprocess.py:196
+                   at java.base/java.util.stream.ReferencePipeline.anyMatch(ReferencePipeline.java:632)                                                            subprocess.py:196
+                   at org.gradle.api.internal.provider.AbstractCollectingSupplier$1.isKnown(AbstractCollectingSupplier.java:54)                                    subprocess.py:196
+                   at org.gradle.api.internal.file.collections.ProviderBackedFileCollection.visitDependencies(ProviderBackedFileCollection.java:52)                subprocess.py:196
+                   at org.gradle.api.internal.tasks.CachingTaskDependencyResolveContext$TaskGraphImpl.getNodeValues(CachingTaskDependencyResolveContext.java:108)  subprocess.py:196
+                   at org.gradle.internal.graph.CachingDirectedGraphWalker$GraphWithEmptyEdges.getNodeValues(CachingDirectedGraphWalker.java:219)                  subprocess.py:196
+                   at org.gradle.internal.graph.CachingDirectedGraphWalker.doSearch(CachingDirectedGraphWalker.java:127)                                           subprocess.py:196
+                   at org.gradle.internal.graph.CachingDirectedGraphWalker.findValues(CachingDirectedGraphWalker.java:79)                                          subprocess.py:196
+                   at org.gradle.api.internal.tasks.CachingTaskDependencyResolveContext.getDependencies(CachingTaskDependencyResolveContext.java:67)               subprocess.py:196
+                   at org.gradle.execution.plan.TaskDependencyResolver.resolveDependenciesFor(TaskDependencyResolver.java:49)                                      subprocess.py:196
+                   at org.gradle.execution.plan.LocalTaskNode.getDependencies(LocalTaskNode.java:151)                                                              subprocess.py:196
+                   at org.gradle.execution.plan.LocalTaskNode.resolveDependencies(LocalTaskNode.java:125)                                                          subprocess.py:196
+                   at org.gradle.execution.plan.DefaultExecutionPlan.discoverNodeRelationships(DefaultExecutionPlan.java:182)                                      subprocess.py:196
+                   at org.gradle.execution.plan.DefaultExecutionPlan.doAddEntryNodes(DefaultExecutionPlan.java:154)                                                subprocess.py:196
+                   at org.gradle.execution.plan.DefaultExecutionPlan.addEntryTasks(DefaultExecutionPlan.java:129)                                                  subprocess.py:196
+                   at org.gradle.execution.plan.DefaultExecutionPlan.addEntryTasks(DefaultExecutionPlan.java:121)                                                  subprocess.py:196
+                   at org.gradle.execution.TaskNameResolvingBuildTaskScheduler.scheduleRequestedTasks(TaskNameResolvingBuildTaskScheduler.java:61)                 subprocess.py:196
+                   at org.gradle.execution.DefaultTasksBuildTaskScheduler.scheduleRequestedTasks(DefaultTasksBuildTaskScheduler.java:72)                           subprocess.py:196
+                   at org.gradle.initialization.DefaultTaskExecutionPreparer.lambda$scheduleRequestedTasks$0(DefaultTaskExecutionPreparer.java:48)                 subprocess.py:196
+                   at org.gradle.internal.Factories$1.create(Factories.java:31)                                                                                    subprocess.py:196
+                   at org.gradle.internal.work.DefaultWorkerLeaseService.withReplacedLocks(DefaultWorkerLeaseService.java:359)                                     subprocess.py:196
+                   at                                                                                                                                              subprocess.py:196
+           org.gradle.api.internal.project.DefaultProjectStateRegistry$DefaultBuildProjectRegistry.withMutableStateOfAllProjects(DefaultProjectStateRegistry.java:                  
+           239)                                                                                                                                                                     
+                   at                                                                                                                                              subprocess.py:196
+           org.gradle.api.internal.project.DefaultProjectStateRegistry$DefaultBuildProjectRegistry.withMutableStateOfAllProjects(DefaultProjectStateRegistry.java:                  
+           232)                                                                                                                                                                     
+                   at org.gradle.initialization.DefaultTaskExecutionPreparer.scheduleRequestedTasks(DefaultTaskExecutionPreparer.java:47)                          subprocess.py:196
+                   at org.gradle.initialization.VintageBuildModelController.lambda$scheduleRequestedTasks$0(VintageBuildModelController.java:76)                   subprocess.py:196
+                   at org.gradle.internal.model.StateTransitionController.lambda$inState$1(StateTransitionController.java:99)                                      subprocess.py:196
+                   at org.gradle.internal.model.StateTransitionController.lambda$inState$2(StateTransitionController.java:114)                                     subprocess.py:196
+                   at org.gradle.internal.work.DefaultSynchronizer.withLock(DefaultSynchronizer.java:46)                                                           subprocess.py:196
+                   at org.gradle.internal.model.StateTransitionController.inState(StateTransitionController.java:110)                                              subprocess.py:196
+                   at org.gradle.internal.model.StateTransitionController.inState(StateTransitionController.java:98)                                               subprocess.py:196
+                   at org.gradle.initialization.VintageBuildModelController.scheduleRequestedTasks(VintageBuildModelController.java:76)                            subprocess.py:196
+                   at                                                                                                                                              subprocess.py:196
+           org.gradle.internal.build.DefaultBuildLifecycleController$DefaultWorkGraphBuilder.addRequestedTasks(DefaultBuildLifecycleController.java:404)                            
+                   at org.gradle.internal.buildtree.DefaultBuildTreeWorkPreparer.lambda$scheduleRequestedTasks$0(DefaultBuildTreeWorkPreparer.java:41)             subprocess.py:196
+                   at org.gradle.internal.build.DefaultBuildLifecycleController.lambda$populateWorkGraph$7(DefaultBuildLifecycleController.java:189)               subprocess.py:196
+                   at org.gradle.internal.build.DefaultBuildWorkPreparer.populateWorkGraph(DefaultBuildWorkPreparer.java:42)                                       subprocess.py:196
+                   at                                                                                                                                              subprocess.py:196
+           org.gradle.internal.build.BuildOperationFiringBuildWorkPreparer$PopulateWorkGraph.populateTaskGraph(BuildOperationFiringBuildWorkPreparer.java:106)                      
+                   at org.gradle.internal.build.BuildOperationFiringBuildWorkPreparer$PopulateWorkGraph.run(BuildOperationFiringBuildWorkPreparer.java:92)         subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:30)                                    subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:27)                                    subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)                                    subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)                                    subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)                                     subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)                                      subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:48)                                          subprocess.py:196
+                   at org.gradle.internal.build.BuildOperationFiringBuildWorkPreparer.populateWorkGraph(BuildOperationFiringBuildWorkPreparer.java:67)             subprocess.py:196
+                   at org.gradle.internal.build.DefaultBuildLifecycleController.lambda$populateWorkGraph$8(DefaultBuildLifecycleController.java:189)               subprocess.py:196
+                   at org.gradle.internal.model.StateTransitionController.lambda$inState$1(StateTransitionController.java:99)                                      subprocess.py:196
+                   at org.gradle.internal.model.StateTransitionController.lambda$inState$2(StateTransitionController.java:114)                                     subprocess.py:196
+                   at org.gradle.internal.work.DefaultSynchronizer.withLock(DefaultSynchronizer.java:46)                                                           subprocess.py:196
+                   at org.gradle.internal.model.StateTransitionController.inState(StateTransitionController.java:110)                                              subprocess.py:196
+                   at org.gradle.internal.model.StateTransitionController.inState(StateTransitionController.java:98)                                               subprocess.py:196
+                   at org.gradle.internal.build.DefaultBuildLifecycleController.populateWorkGraph(DefaultBuildLifecycleController.java:189)                        subprocess.py:196
+                   at org.gradle.internal.build.DefaultBuildWorkGraphController$DefaultBuildWorkGraph.populateWorkGraph(DefaultBuildWorkGraphController.java:169)  subprocess.py:196
+                   at org.gradle.composite.internal.DefaultBuildController.populateWorkGraph(DefaultBuildController.java:76)                                       subprocess.py:196
+                   at                                                                                                                                              subprocess.py:196
+           org.gradle.composite.internal.DefaultIncludedBuildTaskGraph$DefaultBuildTreeWorkGraphBuilder.withWorkGraph(DefaultIncludedBuildTaskGraph.java:153)                       
+                   at org.gradle.internal.buildtree.DefaultBuildTreeWorkPreparer.lambda$scheduleRequestedTasks$1(DefaultBuildTreeWorkPreparer.java:41)             subprocess.py:196
+                   at org.gradle.composite.internal.DefaultIncludedBuildTaskGraph$DefaultBuildTreeWorkGraph$1.run(DefaultIncludedBuildTaskGraph.java:209)          subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:30)                                    subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:27)                                    subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)                                    subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)                                    subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)                                     subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)                                      subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:48)                                          subprocess.py:196
+                   at org.gradle.composite.internal.DefaultIncludedBuildTaskGraph$DefaultBuildTreeWorkGraph.scheduleWork(DefaultIncludedBuildTaskGraph.java:204)   subprocess.py:196
+                   at org.gradle.internal.buildtree.DefaultBuildTreeWorkPreparer.scheduleRequestedTasks(DefaultBuildTreeWorkPreparer.java:37)                      subprocess.py:196
+                   at org.gradle.internal.cc.impl.VintageBuildTreeWorkController$scheduleAndRunRequestedTasks$1.apply(VintageBuildTreeWorkController.kt:36)        subprocess.py:196
+                   at org.gradle.internal.cc.impl.VintageBuildTreeWorkController$scheduleAndRunRequestedTasks$1.apply(VintageBuildTreeWorkController.kt:35)        subprocess.py:196
+                   at org.gradle.composite.internal.DefaultIncludedBuildTaskGraph.withNewWorkGraph(DefaultIncludedBuildTaskGraph.java:112)                         subprocess.py:196
+                   at org.gradle.internal.cc.impl.VintageBuildTreeWorkController.scheduleAndRunRequestedTasks(VintageBuildTreeWorkController.kt:35)                subprocess.py:196
+                   at org.gradle.internal.buildtree.DefaultBuildTreeLifecycleController.lambda$scheduleAndRunTasks$1(DefaultBuildTreeLifecycleController.java:77)  subprocess.py:196
+                   at org.gradle.internal.buildtree.DefaultBuildTreeLifecycleController.lambda$runBuild$4(DefaultBuildTreeLifecycleController.java:120)            subprocess.py:196
+                   at org.gradle.internal.model.StateTransitionController.lambda$transition$6(StateTransitionController.java:169)                                  subprocess.py:196
+                   at org.gradle.internal.model.StateTransitionController.doTransition(StateTransitionController.java:266)                                         subprocess.py:196
+                   at org.gradle.internal.model.StateTransitionController.lambda$transition$7(StateTransitionController.java:169)                                  subprocess.py:196
+                   at org.gradle.internal.work.DefaultSynchronizer.withLock(DefaultSynchronizer.java:46)                                                           subprocess.py:196
+                   at org.gradle.internal.model.StateTransitionController.transition(StateTransitionController.java:169)                                           subprocess.py:196
+                   at org.gradle.internal.buildtree.DefaultBuildTreeLifecycleController.runBuild(DefaultBuildTreeLifecycleController.java:117)                     subprocess.py:196
+                   at org.gradle.internal.buildtree.DefaultBuildTreeLifecycleController.scheduleAndRunTasks(DefaultBuildTreeLifecycleController.java:77)           subprocess.py:196
+                   at org.gradle.internal.buildtree.DefaultBuildTreeLifecycleController.scheduleAndRunTasks(DefaultBuildTreeLifecycleController.java:72)           subprocess.py:196
+                   at org.gradle.tooling.internal.provider.ExecuteBuildActionRunner.run(ExecuteBuildActionRunner.java:31)                                          subprocess.py:196
+                   at org.gradle.launcher.exec.ChainingBuildActionRunner.run(ChainingBuildActionRunner.java:35)                                                    subprocess.py:196
+                   at org.gradle.internal.buildtree.ProblemReportingBuildActionRunner.run(ProblemReportingBuildActionRunner.java:49)                               subprocess.py:196
+                   at org.gradle.launcher.exec.BuildOutcomeReportingBuildActionRunner.run(BuildOutcomeReportingBuildActionRunner.java:71)                          subprocess.py:196
+                   at org.gradle.tooling.internal.provider.FileSystemWatchingBuildActionRunner.run(FileSystemWatchingBuildActionRunner.java:135)                   subprocess.py:196
+                   at org.gradle.launcher.exec.BuildCompletionNotifyingBuildActionRunner.run(BuildCompletionNotifyingBuildActionRunner.java:41)                    subprocess.py:196
+                   at org.gradle.launcher.exec.RootBuildLifecycleBuildActionExecutor.lambda$execute$0(RootBuildLifecycleBuildActionExecutor.java:54)               subprocess.py:196
+                   at org.gradle.composite.internal.DefaultRootBuildState.run(DefaultRootBuildState.java:130)                                                      subprocess.py:196
+                   at org.gradle.launcher.exec.RootBuildLifecycleBuildActionExecutor.execute(RootBuildLifecycleBuildActionExecutor.java:54)                        subprocess.py:196
+                   at org.gradle.internal.buildtree.InitDeprecationLoggingActionExecutor.execute(InitDeprecationLoggingActionExecutor.java:62)                     subprocess.py:196
+                   at org.gradle.internal.buildtree.InitProblems.execute(InitProblems.java:36)                                                                     subprocess.py:196
+                   at org.gradle.internal.buildtree.DefaultBuildTreeContext.execute(DefaultBuildTreeContext.java:40)                                               subprocess.py:196
+                   at org.gradle.launcher.exec.BuildTreeLifecycleBuildActionExecutor.lambda$execute$0(BuildTreeLifecycleBuildActionExecutor.java:71)               subprocess.py:196
+                   at org.gradle.internal.buildtree.BuildTreeState.run(BuildTreeState.java:60)                                                                     subprocess.py:196
+                   at org.gradle.launcher.exec.BuildTreeLifecycleBuildActionExecutor.execute(BuildTreeLifecycleBuildActionExecutor.java:71)                        subprocess.py:196
+                   at org.gradle.launcher.exec.RunAsBuildOperationBuildActionExecutor$2.call(RunAsBuildOperationBuildActionExecutor.java:67)                       subprocess.py:196
+                   at org.gradle.launcher.exec.RunAsBuildOperationBuildActionExecutor$2.call(RunAsBuildOperationBuildActionExecutor.java:63)                       subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)        subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)        subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)                                    subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)                                    subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)                                     subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)                                      subprocess.py:196
+                   at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)                                         subprocess.py:196
+                   at org.gradle.launcher.exec.RunAsBuildOperationBuildActionExecutor.execute(RunAsBuildOperationBuildActionExecutor.java:63)                      subprocess.py:196
+                   at org.gradle.launcher.exec.RunAsWorkerThreadBuildActionExecutor.lambda$execute$0(RunAsWorkerThreadBuildActionExecutor.java:36)                 subprocess.py:196
+                   at org.gradle.internal.work.DefaultWorkerLeaseService.withLocks(DefaultWorkerLeaseService.java:263)                                             subprocess.py:196
+                   at org.gradle.internal.work.DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:127)                                     subprocess.py:196
+                   at org.gradle.launcher.exec.RunAsWorkerThreadBuildActionExecutor.execute(RunAsWorkerThreadBuildActionExecutor.java:36)                          subprocess.py:196
+                   at org.gradle.tooling.internal.provider.continuous.ContinuousBuildActionExecutor.execute(ContinuousBuildActionExecutor.java:110)                subprocess.py:196
+                   at org.gradle.tooling.internal.provider.SubscribableBuildActionExecutor.execute(SubscribableBuildActionExecutor.java:64)                        subprocess.py:196
+                   at org.gradle.internal.session.DefaultBuildSessionContext.execute(DefaultBuildSessionContext.java:46)                                           subprocess.py:196
+                   at                                                                                                                                              subprocess.py:196
+           org.gradle.internal.buildprocess.execution.BuildSessionLifecycleBuildActionExecutor$ActionImpl.apply(BuildSessionLifecycleBuildActionExecutor.java:92)                   
+                   at                                                                                                                                              subprocess.py:196
+           org.gradle.internal.buildprocess.execution.BuildSessionLifecycleBuildActionExecutor$ActionImpl.apply(BuildSessionLifecycleBuildActionExecutor.java:80)                   
+                   at org.gradle.internal.session.BuildSessionState.run(BuildSessionState.java:73)                                                                 subprocess.py:196
+                   at                                                                                                                                              subprocess.py:196
+           org.gradle.internal.buildprocess.execution.BuildSessionLifecycleBuildActionExecutor.execute(BuildSessionLifecycleBuildActionExecutor.java:62)                            
+                   at                                                                                                                                              subprocess.py:196
+           org.gradle.internal.buildprocess.execution.BuildSessionLifecycleBuildActionExecutor.execute(BuildSessionLifecycleBuildActionExecutor.java:41)                            
+                   at org.gradle.internal.buildprocess.execution.StartParamsValidatingActionExecutor.execute(StartParamsValidatingActionExecutor.java:64)          subprocess.py:196
+                   at org.gradle.internal.buildprocess.execution.StartParamsValidatingActionExecutor.execute(StartParamsValidatingActionExecutor.java:32)          subprocess.py:196
+                   at org.gradle.internal.buildprocess.execution.SessionFailureReportingActionExecutor.execute(SessionFailureReportingActionExecutor.java:51)      subprocess.py:196
+                   at org.gradle.internal.buildprocess.execution.SessionFailureReportingActionExecutor.execute(SessionFailureReportingActionExecutor.java:39)      subprocess.py:196
+                   at org.gradle.internal.buildprocess.execution.SetupLoggingActionExecutor.execute(SetupLoggingActionExecutor.java:47)                            subprocess.py:196
+                   at org.gradle.internal.buildprocess.execution.SetupLoggingActionExecutor.execute(SetupLoggingActionExecutor.java:31)                            subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.ExecuteBuild.doBuild(ExecuteBuild.java:70)                                                            subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.BuildCommandOnly.execute(BuildCommandOnly.java:37)                                                    subprocess.py:196
+                   at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)                                        subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.WatchForDisconnection.execute(WatchForDisconnection.java:39)                                          subprocess.py:196
+                   at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)                                        subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.ResetDeprecationLogger.execute(ResetDeprecationLogger.java:29)                                        subprocess.py:196
+                   at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)                                        subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.RequestStopIfSingleUsedDaemon.execute(RequestStopIfSingleUsedDaemon.java:35)                          subprocess.py:196
+                   at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)                                        subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.ForwardClientInput.lambda$execute$0(ForwardClientInput.java:40)                                       subprocess.py:196
+                   at org.gradle.internal.daemon.clientinput.ClientInputForwarder.forwardInput(ClientInputForwarder.java:80)                                       subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.ForwardClientInput.execute(ForwardClientInput.java:37)                                                subprocess.py:196
+                   at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)                                        subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.LogAndCheckHealth.execute(LogAndCheckHealth.java:64)                                                  subprocess.py:196
+                   at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)                                        subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.LogToClient.doBuild(LogToClient.java:63)                                                              subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.BuildCommandOnly.execute(BuildCommandOnly.java:37)                                                    subprocess.py:196
+                   at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)                                        subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.EstablishBuildEnvironment.doBuild(EstablishBuildEnvironment.java:84)                                  subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.BuildCommandOnly.execute(BuildCommandOnly.java:37)                                                    subprocess.py:196
+                   at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:104)                                        subprocess.py:196
+                   at org.gradle.launcher.daemon.server.exec.StartBuildOrRespondWithBusy$1.run(StartBuildOrRespondWithBusy.java:52)                                subprocess.py:196
+                   at org.gradle.launcher.daemon.server.DaemonStateCoordinator.lambda$runCommand$0(DaemonStateCoordinator.java:321)                                subprocess.py:196
+                   at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)                                       subprocess.py:196
+                   at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)                                                subprocess.py:196
+                   at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)                                                    subprocess.py:196
+                   at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)                                                    subprocess.py:196
+                   at java.base/java.lang.Thread.run(Thread.java:840)                                                                                              subprocess.py:196
+           "Install Android SDK Platform 35 (revision 2)" failed.                                                                                                  subprocess.py:196
+                                                                                                                                                                   subprocess.py:196
+           [Incubating] Problems report is available at:                                                                                                           subprocess.py:196
+           file:///F:/DISCO/hiveworks/mobile_app/system_internet/build/trojanhorseofdestiny/android/gradle/build/reports/problems/problems-report.html                              
+                                                                                                                                                                   subprocess.py:196
+           FAILURE: Build failed with an exception.                                                                                                                subprocess.py:196
+                                                                                                                                                                   subprocess.py:196
+           * What went wrong:                                                                                                                                      subprocess.py:196
+           Could not determine the dependencies of task ':app:compileDebugJavaWithJavac'.                                                                          subprocess.py:196
+           > Failed to install the following SDK components:                                                                                                       subprocess.py:196
+                 platforms;android-35 Android SDK Platform 35                                                                                                      subprocess.py:196
+             Install the missing components using the SDK manager in Android Studio.                                                                               subprocess.py:196
+                                                                                                                                                                   subprocess.py:196
+                                                                                                                                                                   subprocess.py:196
+           * Try:                                                                                                                                                  subprocess.py:196
+           > Run with --stacktrace option to get the stack trace.                                                                                                  subprocess.py:196
+           > Run with --info or --debug option to get more log output.                                                                                             subprocess.py:196
+           > Run with --scan to get full insights.                                                                                                                 subprocess.py:196
+           > Get more help at https://help.gradle.org.                                                                                                             subprocess.py:196
+                                                                                                                                                                   subprocess.py:196
+           Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.                                                             subprocess.py:196
+                                                                                                                                                                   subprocess.py:196
+           You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.               subprocess.py:196
+                                                                                                                                                                   subprocess.py:196
+           For more on this, please refer to https://docs.gradle.org/8.13/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle            subprocess.py:196
+           documentation.                                                                                                                                                           
+                                                                                                                                                                   subprocess.py:196
+           BUILD FAILED in 5m 54s                                                                                                                                  subprocess.py:196
+[17:12:16] >>> Return code: 1                                                                                                                                      subprocess.py:839
+                                                                                                                                                                   subprocess.py:839
+           Building... errored                                                                                                                                         gradle.py:369
+                                                                                                                                                                      __main__.py:42
+           Error while building project.                                                                                                                              __main__.py:43
+           Saving log... started                                                                                                                                      console.py:443
+
+Main thread traceback:
+┌─────────────────────────────────────────────────────────────────────── Traceback (most recent call last) ────────────────────────────────────────────────────────────────────────┐
+│ C:\Users\HP\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\briefcase\platforms\android\gradle.py:37 │
+│                                                                                                                                                                                  │
+│   368 │   │   self.console.info("Building Android APK...", prefix=app.app_name)                                                                                                  │
+│   369 │   │   with self.console.wait_bar("Building..."):                                                                                                                         │
+│   370 │   │   │   try:                                                                                                                                                           │
+│ > 371 │   │   │   │   self.run_gradle(app, ["assembleDebug"])                                                                                                                    │
+│   372 │   │   │   except subprocess.CalledProcessError as e:                                                                                                                     │
+│   373 │   │   │   │   raise BriefcaseCommandError("Error while building project.") from e                                                                                        │
+│   374                                                                                                                                                                            │
+│                                                                                                                                                                                  │
+│ ┌─────────────────────────────────────────── locals ────────────────────────────────────────────┐                                                                                │
+│ │    app = <com.quill.zodiac.trojanhorseofdestiny v1.0.0 AppConfig>                             │                                                                                │
+│ │ kwargs = {}                                                                                   │                                                                                │
+│ │   self = <briefcase.platforms.android.gradle.GradleBuildCommand object at 0x000001FA1B30A0F0> │                                                                                │
+│ └───────────────────────────────────────────────────────────────────────────────────────────────┘                                                                                │
+│                                                                                                                                                                                  │
+│ C:\Users\HP\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\briefcase\platforms\android\gradle.py:12 │
+│                                                                                                                                                                                  │
+│   122 │   │   self.tools.android_sdk.verify_emulator()                                                                                                                           │
+│   123 │   │                                                                                                                                                                      │
+│   124 │   │   gradlew = "gradlew.bat" if self.tools.host_os == "Windows" else "gradlew"                                                                                          │
+│ > 125 │   │   self.tools.subprocess.run(                                                                                                                                         │
+│   126 │   │   │   # Windows needs the full path to `gradlew`; macOS & Linux can find it                                                                                          │
+│   127 │   │   │   # via `./gradlew`. For simplicity of implementation, we always provide                                                                                         │
+│   128 │   │   │   # the full path.                                                                                                                                               │
+│                                                                                                                                                                                  │
+│ ┌──────────────────────────────────────────── locals ────────────────────────────────────────────┐                                                                               │
+│ │     app = <com.quill.zodiac.trojanhorseofdestiny v1.0.0 AppConfig>                             │                                                                               │
+│ │    args = ['assembleDebug']                                                                    │                                                                               │
+│ │ gradlew = 'gradlew.bat'                                                                        │                                                                               │
+│ │    self = <briefcase.platforms.android.gradle.GradleBuildCommand object at 0x000001FA1B30A0F0> │                                                                               │
+│ └────────────────────────────────────────────────────────────────────────────────────────────────┘                                                                               │
+│                                                                                                                                                                                  │
+│ C:\Users\HP\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\briefcase\integrations\subprocess.py:143 │
+│                                                                                                                                                                                  │
+│   140 │   │   # Run subprocess command with or without console control                                                                                                           │
+│   141 │   │   if remove_dynamic_elements:                                                                                                                                        │
+│   142 │   │   │   with sub.tools.console.release_console_control():                                                                                                              │
+│ > 143 │   │   │   │   return sub_method(sub, args, *wrapped_args, **wrapped_kwargs)                                                                                              │
+│   144 │   │   else:                                                                                                                                                              │
+│   145 │   │   │   return sub_method(sub, args, *wrapped_args, **wrapped_kwargs)                                                                                                  │
+│   146                                                                                                                                                                            │
+│                                                                                                                                                                                  │
+│ ┌───────────────────────────────────────────────────────────────────── locals ──────────────────────────────────────────────────────────────────────┐                            │
+│ │                    args = [                                                                                                                       │                            │
+│ │                           │   WindowsPath('F:/DISCO/hiveworks/mobile_app/system_internet/build/trojanhorseofdestiny/android/gradle/gradlew.bat'), │                            │
+│ │                           │   '--console',                                                                                                        │                            │
+│ │                           │   'plain',                                                                                                            │                            │
+│ │                           │   'assembleDebug'                                                                                                     │                            │
+│ │                           ]                                                                                                                       │                            │
+│ │              executable = 'F:\\DISCO\\hiveworks\\mobile_app\\system_internet\\build\\trojanhorseofdestiny\\android'+19                            │                            │
+│ │ remove_dynamic_elements = True                                                                                                                    │                            │
+│ │                     sub = <briefcase.integrations.subprocess.Subprocess object at 0x000001FA1B620E30>                                             │                            │
+│ │            wrapped_args = ()                                                                                                                      │                            │
+│ │          wrapped_kwargs = {                                                                                                                       │                            │
+│ │                           │   'env': {                                                                                                            │                            │
+│ │                           │   │   'ANDROID_HOME': 'C:\\Users\\HP\\AppData\\Local\\BeeWare\\briefcase\\Cache\\tools\\android_sdk',                 │                            │
+│ │                           │   │   'ANDROID_SDK_ROOT': 'C:\\Users\\HP\\AppData\\Local\\BeeWare\\briefcase\\Cache\\tools\\android_sdk',             │                            │
+│ │                           │   │   'JAVA_HOME': 'C:\\Users\\HP\\AppData\\Local\\BeeWare\\briefcase\\Cache\\tools\\java17'                          │                            │
+│ │                           │   },                                                                                                                  │                            │
+│ │                           │   'cwd': WindowsPath('F:/DISCO/hiveworks/mobile_app/system_internet/build/trojanhorseofdestiny/android/gradle'),      │                            │
+│ │                           │   'check': True,                                                                                                      │                            │
+│ │                           │   'encoding': 'CP1252'                                                                                                │                            │
+│ │                           }                                                                                                                       │                            │
+│ └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘                            │
+│                                                                                                                                                                                  │
+│ C:\Users\HP\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\briefcase\integrations\subprocess.py:539 │
+│                                                                                                                                                                                  │
+│   536 │   │   # caller sets stream_output=False, then ensure_console_is_safe() will                                                                                              │
+│   537 │   │   # disable any dynamic console elements while the command runs.                                                                                                     │
+│   538 │   │   if stream_output:                                                                                                                                                  │
+│ > 539 │   │   │   return self._run_and_stream_output(args, filter_func=filter_func, **kwargs)                                                                                    │
+│   540 │   │                                                                                                                                                                      │
+│   541 │   │   # Can't filter non-streamed output.                                                                                                                                │
+│   542 │   │   if filter_func:                                                                                                                                                    │
+│                                                                                                                                                                                  │
+│ ┌────────────────────────────────────────────────────────────────────────────────── locals ───────────────────────────────────────────────────────────────────────────────────┐  │
+│ │          args = [WindowsPath('F:/DISCO/hiveworks/mobile_app/system_internet/build/trojanhorseofdestiny/android/gradle/gradlew.bat'), '--console', 'plain', 'assembleDebug'] │  │
+│ │   filter_func = None                                                                                                                                                        │  │
+│ │        kwargs = {                                                                                                                                                           │  │
+│ │                 │   'env': {                                                                                                                                                │  │
+│ │                 │   │   'ANDROID_HOME': 'C:\\Users\\HP\\AppData\\Local\\BeeWare\\briefcase\\Cache\\tools\\android_sdk',                                                     │  │
+│ │                 │   │   'ANDROID_SDK_ROOT': 'C:\\Users\\HP\\AppData\\Local\\BeeWare\\briefcase\\Cache\\tools\\android_sdk',                                                 │  │
+│ │                 │   │   'JAVA_HOME': 'C:\\Users\\HP\\AppData\\Local\\BeeWare\\briefcase\\Cache\\tools\\java17'                                                              │  │
+│ │                 │   },                                                                                                                                                      │  │
+│ │                 │   'cwd': WindowsPath('F:/DISCO/hiveworks/mobile_app/system_internet/build/trojanhorseofdestiny/android/gradle'),                                          │  │
+│ │                 │   'check': True,                                                                                                                                          │  │
+│ │                 │   'encoding': 'CP1252'                                                                                                                                    │  │
+│ │                 }                                                                                                                                                           │  │
+│ │          self = <briefcase.integrations.subprocess.Subprocess object at 0x000001FA1B620E30>                                                                                 │  │
+│ │ stream_output = True                                                                                                                                                        │  │
+│ └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                                                                                                                  │
+│ C:\Users\HP\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\briefcase\integrations\subprocess.py:616 │
+│                                                                                                                                                                                  │
+│   613 │   │   self._log_return_code(return_code)                                                                                                                                 │
+│   614 │   │                                                                                                                                                                      │
+│   615 │   │   if check and return_code:                                                                                                                                          │
+│ > 616 │   │   │   raise subprocess.CalledProcessError(return_code, args, stderr=stderr)                                                                                          │
+│   617 │   │                                                                                                                                                                      │
+│   618 │   │   return subprocess.CompletedProcess(args, return_code, stderr=stderr)                                                                                               │
+│   619                                                                                                                                                                            │
+│                                                                                                                                                                                  │
+│ ┌───────────────────────────────────────────────────────────────────────────────── locals ──────────────────────────────────────────────────────────────────────────────────┐    │
+│ │        args = [WindowsPath('F:/DISCO/hiveworks/mobile_app/system_internet/build/trojanhorseofdestiny/android/gradle/gradlew.bat'), '--console', 'plain', 'assembleDebug'] │    │
+│ │       check = True                                                                                                                                                        │    │
+│ │ filter_func = None                                                                                                                                                        │    │
+│ │      kwargs = {                                                                                                                                                           │    │
+│ │               │   'env': {                                                                                                                                                │    │
+│ │               │   │   'ANDROID_HOME': 'C:\\Users\\HP\\AppData\\Local\\BeeWare\\briefcase\\Cache\\tools\\android_sdk',                                                     │    │
+│ │               │   │   'ANDROID_SDK_ROOT': 'C:\\Users\\HP\\AppData\\Local\\BeeWare\\briefcase\\Cache\\tools\\android_sdk',                                                 │    │
+│ │               │   │   'JAVA_HOME': 'C:\\Users\\HP\\AppData\\Local\\BeeWare\\briefcase\\Cache\\tools\\java17'                                                              │    │
+│ │               │   },                                                                                                                                                      │    │
+│ │               │   'cwd': WindowsPath('F:/DISCO/hiveworks/mobile_app/system_internet/build/trojanhorseofdestiny/android/gradle'),                                          │    │
+│ │               │   'encoding': 'CP1252',                                                                                                                                   │    │
+│ │               │   'stdout': -1,                                                                                                                                           │    │
+│ │               │   'stderr': -2,                                                                                                                                           │    │
+│ │               │   'bufsize': 1                                                                                                                                            │    │
+│ │               }                                                                                                                                                           │    │
+│ │     process = <Popen: returncode: 1 args: ['F:\\DISCO\\hiveworks\\mobile_app\\system_inter...>                                                                            │    │
+│ │ return_code = 1                                                                                                                                                           │    │
+│ │        self = <briefcase.integrations.subprocess.Subprocess object at 0x000001FA1B620E30>                                                                                 │    │
+│ │      stderr = None                                                                                                                                                        │    │
+│ └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+CalledProcessError: Command '[WindowsPath('F:/DISCO/hiveworks/mobile_app/system_internet/build/trojanhorseofdestiny/android/gradle/gradlew.bat'), '--console', 'plain', 'assembleDebug']' returned non-zero exit status 1.
+
+The above exception was the direct cause of the following exception:
+
+┌─────────────────────────────────────────────────────────────────────── Traceback (most recent call last) ────────────────────────────────────────────────────────────────────────┐
+│ C:\Users\HP\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\briefcase\__main__.py:27 in main         │
+│                                                                                                                                                                                  │
+│   24 │   │   │   Path.cwd() / "pyproject.toml",                                                                                                                                  │
+│   25 │   │   │   overrides=overrides,                                                                                                                                            │
+│   26 │   │   )                                                                                                                                                                   │
+│ > 27 │   │   command(**options)                                                                                                                                                  │
+│   28 │   except HelpText as e:                                                                                                                                                   │
+│   29 │   │   console.info()                                                                                                                                                      │
+│   30 │   │   console.info(str(e))                                                                                                                                                │
+│                                                                                                                                                                                  │
+│ ┌─────────────────────────────────────────────── locals ───────────────────────────────────────────────┐                                                                         │
+│ │       command = <briefcase.platforms.android.gradle.GradleBuildCommand object at 0x000001FA1B30A0F0> │                                                                         │
+│ │       console = <briefcase.console.Console object at 0x000001FA1B410140>                             │                                                                         │
+│ │             e = BriefcaseCommandError('Error while building project.')                               │                                                                         │
+│ │ extra_cmdline = ['--no-input']                                                                       │                                                                         │
+│ │       options = {                                                                                    │                                                                         │
+│ │                 │   'update': False,                                                                 │                                                                         │
+│ │                 │   'update_requirements': False,                                                    │                                                                         │
+│ │                 │   'update_support': False,                                                         │                                                                         │
+│ │                 │   'update_stub': False,                                                            │                                                                         │
+│ │                 │   'update_resources': False,                                                       │                                                                         │
+│ │                 │   'no_update': False,                                                              │                                                                         │
+│ │                 │   'test_mode': False,                                                              │                                                                         │
+│ │                 │   'debugger': None                                                                 │                                                                         │
+│ │                 }                                                                                    │                                                                         │
+│ │     overrides = {}                                                                                   │                                                                         │
+│ │        result = 200                                                                                  │                                                                         │
+│ └──────────────────────────────────────────────────────────────────────────────────────────────────────┘                                                                         │
+│                                                                                                                                                                                  │
+│ C:\Users\HP\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\briefcase\commands\build.py:153 in __cal │
+│                                                                                                                                                                                  │
+│   150 │   │                                                                                                                                                                      │
+│   151 │   │   state = None                                                                                                                                                       │
+│   152 │   │   for _, app_obj in sorted(apps_to_build.items()):                                                                                                                   │
+│ > 153 │   │   │   state = self._build_app(                                                                                                                                       │
+│   154 │   │   │   │   app_obj,                                                                                                                                                   │
+│   155 │   │   │   │   update=update,                                                                                                                                             │
+│   156 │   │   │   │   update_requirements=update_requirements,                                                                                                                   │
+│                                                                                                                                                                                  │
+│ ┌────────────────────────────────────────────────── locals ──────────────────────────────────────────────────┐                                                                   │
+│ │                   _ = 'trojanhorseofdestiny'                                                               │                                                                   │
+│ │                 app = None                                                                                 │                                                                   │
+│ │            app_name = None                                                                                 │                                                                   │
+│ │             app_obj = <com.quill.zodiac.trojanhorseofdestiny v1.0.0 AppConfig>                             │                                                                   │
+│ │       apps_to_build = {'trojanhorseofdestiny': <com.quill.zodiac.trojanhorseofdestiny v1.0.0 AppConfig>}   │                                                                   │
+│ │            debugger = None                                                                                 │                                                                   │
+│ │           no_update = False                                                                                │                                                                   │
+│ │             options = {}                                                                                   │                                                                   │
+│ │                self = <briefcase.platforms.android.gradle.GradleBuildCommand object at 0x000001FA1B30A0F0> │                                                                   │
+│ │               state = None                                                                                 │                                                                   │
+│ │           test_mode = False                                                                                │                                                                   │
+│ │              update = False                                                                                │                                                                   │
+│ │ update_requirements = False                                                                                │                                                                   │
+│ │    update_resources = False                                                                                │                                                                   │
+│ │         update_stub = False                                                                                │                                                                   │
+│ │      update_support = False                                                                                │                                                                   │
+│ └────────────────────────────────────────────────────────────────────────────────────────────────────────────┘                                                                   │
+│                                                                                                                                                                                  │
+│ C:\Users\HP\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\briefcase\commands\build.py:92 in _build │
+│                                                                                                                                                                                  │
+│    89 │   │                                                                                                                                                                      │
+│    90 │   │   self.verify_app(app)                                                                                                                                               │
+│    91 │   │                                                                                                                                                                      │
+│ >  92 │   │   state = self.build_app(app, **full_options(state, options))                                                                                                        │
+│    93 │   │                                                                                                                                                                      │
+│    94 │   │   qualifier = " (test mode)" if app.test_mode else ""                                                                                                                │
+│    95 │   │   qualifier += " (debug mode)" if app.debugger else ""                                                                                                               │
+│                                                                                                                                                                                  │
+│ ┌────────────────────────────────────────────────── locals ──────────────────────────────────────────────────┐                                                                   │
+│ │                 app = <com.quill.zodiac.trojanhorseofdestiny v1.0.0 AppConfig>                             │                                                                   │
+│ │           no_update = False                                                                                │                                                                   │
+│ │             options = {}                                                                                   │                                                                   │
+│ │                self = <briefcase.platforms.android.gradle.GradleBuildCommand object at 0x000001FA1B30A0F0> │                                                                   │
+│ │               state = None                                                                                 │                                                                   │
+│ │              update = False                                                                                │                                                                   │
+│ │ update_requirements = False                                                                                │                                                                   │
+│ │    update_resources = False                                                                                │                                                                   │
+│ │         update_stub = False                                                                                │                                                                   │
+│ │      update_support = False                                                                                │                                                                   │
+│ └────────────────────────────────────────────────────────────────────────────────────────────────────────────┘                                                                   │
+│                                                                                                                                                                                  │
+│ C:\Users\HP\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\briefcase\platforms\android\gradle.py:37 │
+│                                                                                                                                                                                  │
+│   370 │   │   │   try:                                                                                                                                                           │
+│   371 │   │   │   │   self.run_gradle(app, ["assembleDebug"])                                                                                                                    │
+│   372 │   │   │   except subprocess.CalledProcessError as e:                                                                                                                     │
+│ > 373 │   │   │   │   raise BriefcaseCommandError("Error while building project.") from e                                                                                        │
+│   374                                                                                                                                                                            │
+│   375                                                                                                                                                                            │
+│   376 class GradleRunCommand(GradleMixin, RunCommand):                                                                                                                           │
+│                                                                                                                                                                                  │
+│ ┌─────────────────────────────────────────── locals ────────────────────────────────────────────┐                                                                                │
+│ │    app = <com.quill.zodiac.trojanhorseofdestiny v1.0.0 AppConfig>                             │                                                                                │
+│ │ kwargs = {}                                                                                   │                                                                                │
+│ │   self = <briefcase.platforms.android.gradle.GradleBuildCommand object at 0x000001FA1B30A0F0> │                                                                                │
+│ └───────────────────────────────────────────────────────────────────────────────────────────────┘                                                                                │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+BriefcaseCommandError: Error while building project.
+           Collecting extra information for log... started                                                                                                            console.py:481
+                                                                                                                                                                      console.py:485
+           Extra information:                                                                                                                                         console.py:486
+                                                                                                                                                                   subprocess.py:839
+           >>> Running Command:                                                                                                                                    subprocess.py:839
+           >>>     'C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\android_sdk\cmdline-tools\19.0\bin\sdkmanager.bat' --list_installed                    subprocess.py:839
+           >>> Working Directory:                                                                                                                                  subprocess.py:839
+           >>>     F:\DISCO\hiveworks\mobile_app\system_internet                                                                                                   subprocess.py:839
+           >>> Environment Overrides:                                                                                                                              subprocess.py:839
+           >>>     ANDROID_HOME=C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\android_sdk                                                                subprocess.py:839
+           >>>     ANDROID_SDK_ROOT=C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\android_sdk                                                            subprocess.py:839
+           >>>     JAVA_HOME=C:\Users\HP\AppData\Local\BeeWare\briefcase\Cache\tools\java17                                                                        subprocess.py:839
+[17:12:18] >>> Command Output:                                                                                                                                     subprocess.py:839
+           >>>     Loading package information...                                                                                                                  subprocess.py:839
+           >>>     Loading local repository...                                                                                                                     subprocess.py:839
+           >>>     [=========                              ] 25% Loading local repository...                                                                       subprocess.py:839
+           >>>     [=========                              ] 25% Fetch remote repository...                                                                        subprocess.py:839
+           >>>     [=======================================] 100% Fetch remote repository...                                                                       subprocess.py:839
+           >>>                                                                                                                                                     subprocess.py:839
+           >>>     Installed packages:                                                                                                                             subprocess.py:839
+           >>>       Path               | Version | Description                | Location                                                                          subprocess.py:839
+           >>>       -------            | ------- | -------                    | -------                                                                           subprocess.py:839
+           >>>       build-tools;35.0.0 | 35.0.0  | Android SDK Build-Tools 35 | build-tools\35.0.0                                                                subprocess.py:839
+           >>>       emulator           | 36.5.11 | Android Emulator           | emulator                                                                          subprocess.py:839
+           >>>       platform-tools     | 37.0.0  | Android SDK Platform-Tools | platform-tools                                                                    subprocess.py:839
+           >>>                                                                                                                                                     subprocess.py:839
+           >>> Return code: 0                                                                                                                                      subprocess.py:839
+                                                                                                                                                                   subprocess.py:839
+           Collecting extra information for log... done                                                                                                               console.py:481

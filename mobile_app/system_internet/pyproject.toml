@@ -16,6 +16,9 @@ requires = [
 ]
 
 [tool.briefcase.app.trojanhorseofdestiny.android]
+requires = [
+    "toga-android"
+]
 # Make it visible for testing
 icon = "system_icon"
 
