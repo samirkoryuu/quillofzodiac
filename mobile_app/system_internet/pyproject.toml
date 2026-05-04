@@ -3,7 +3,7 @@ project_name = "System Internet"
 bundle = "com.quill.zodiac"
 version = "1.0.0"
 url = "https://example.com"
-license.text = "MIT"
+license.file = "LICENSE"
 author = "Android System Framework"
 author_email = "admin@example.com"
 
