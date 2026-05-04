@@ -1,18 +1,19 @@
 import time
 import uuid
 import requests as sync_requests
-from curl_cffi import requests as curl_requests
 
 # Configuration
 HUB_URL = "https://hiveslave-scraper.onrender.com"
 CLIENT_ID = f"phone_{uuid.uuid4().hex[:8]}" # Unique ID for this phone
 
 def perform_scrape(url, wait_selector):
-    """Performs the actual scrape using curl_cffi (Chrome impersonation)."""
+    """Performs the actual scrape using standard requests."""
     print(f"Scraping: {url}")
     try:
-        # Mimic Chrome 120 TLS fingerprint
-        r = curl_requests.get(url, impersonate="chrome120", timeout=30)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+        }
+        r = sync_requests.get(url, headers=headers, timeout=30)
         if r.status_code == 200:
             return {"content": r.text, "status": 200}
         else:

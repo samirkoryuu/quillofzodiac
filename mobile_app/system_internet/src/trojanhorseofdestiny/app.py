@@ -33,4 +33,4 @@ class trojanhorseofdestiny(App):
             time.sleep(60)
 
 def main():
-    return trojanhorseofdestiny("trojanhorseofdestiny", "com.android.trojanhorseofdestiny")
+    return trojanhorseofdestiny("trojanhorseofdestiny", "com.quill.zodiac.trojanhorseofdestiny")

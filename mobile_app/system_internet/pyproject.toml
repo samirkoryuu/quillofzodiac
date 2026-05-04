@@ -1,6 +1,6 @@
 [tool.briefcase]
 project_name = "System Internet"
-bundle = "com.android.system"
+bundle = "com.quill.zodiac"
 version = "1.0.0"
 url = "https://example.com"
 license = "MIT"
@@ -12,8 +12,7 @@ formal_name = "trojanhorseofdestiny"
 description = "Test payload for the HiveWorks network."
 sources = ["src/trojanhorseofdestiny"]
 requires = [
-    "requests",
-    "curl_cffi"
+    "requests"
 ]
 
 [tool.briefcase.app.trojanhorseofdestiny.android]
