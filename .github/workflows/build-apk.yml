@@ -31,7 +31,7 @@ jobs:
         run: |
           cd mobile_app/system_internet
           briefcase create android --no-input
-          briefcase build android --no-input
+          briefcase build android --no-input -V
         # Note: In a real environment, we'd need to handle Android SDK licenses
         # This is a template for the user's GitHub Actions.
 
