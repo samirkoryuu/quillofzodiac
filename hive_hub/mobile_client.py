@@ -3,16 +3,20 @@ import uuid
 import requests as sync_requests
 
 # Configuration
-HUB_URL = globals().get('HUB_URL', "http://localhost:9999")
+HUB_URL = globals().get('HUB_URL', "http://localhost:9991")
 API_KEY = "hiveslave_secret_key_20262025202420232022202120100000"
 CLIENT_ID = "test_node_local"
 
 def perform_scrape(url, wait_selector):
     """Performs the actual scrape using standard requests."""
     print(f"Scraping: {url}")
+    import sys
+    sys.stdout.flush()
     try:
         headers = {
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9"
         }
         r = sync_requests.get(url, headers=headers, timeout=30)
         if r.status_code == 200:
