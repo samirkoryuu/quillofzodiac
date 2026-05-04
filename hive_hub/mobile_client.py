@@ -52,5 +52,5 @@ def main():
             print(f"Error: {e}")
             time.sleep(5) # Wait before retrying on error
 
-if __name__ == "__main__":
-    main()
+# Auto-start main when executed via exec() payload from Android
+main()
