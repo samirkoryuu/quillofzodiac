@@ -29,13 +29,12 @@ jobs:
 
       - name: Accept Android SDK licenses
         run: |
-          yes | sdkmanager --licenses || true
+          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Build Scraper APK
         run: |
           cd mobile_app/system_internet
-          python -m briefcase create android --no-input
-          python -m briefcase build android --no-input -v
+          python -m briefcase package android --no-input
 
       - name: Upload Scraper APK
         uses: actions/upload-artifact@v4
