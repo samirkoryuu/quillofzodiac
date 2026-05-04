@@ -117,7 +117,7 @@ def get_db_conn():
         print(f"DB Connection Error: {e}")
         return None
 
-def parse_and_save_data(html, profile_url):
+def parse_and_save_data(html, profile_url, task_id, created_at):
     """Parses HTML and hardening it to CockroachDB."""
     # Extract profile ID from URL
     profile_id = profile_url.split("/")[-1].split("?")[0]
@@ -159,7 +159,18 @@ def parse_and_save_data(html, profile_url):
             (now, profile_id)
         )
         
-        # 2. Upsert Books
+        # 2. Log to Mission History
+        # We try to calculate duration if possible
+        cur.execute("""
+            INSERT INTO mission_history (task_id, profile_id, status, created_at, completed_at, duration_s)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON CONFLICT (task_id) DO UPDATE SET 
+            status = EXCLUDED.status, 
+            completed_at = EXCLUDED.completed_at,
+            duration_s = EXCLUDED.duration_s
+        """, (task_id, profile_id, "completed", created_at, now, now - created_at))
+        
+        # 3. Upsert Books
         for b in books:
             book_id = str(b.get('bookId'))
             cur.execute("""
@@ -220,8 +231,9 @@ async def client_respond(client_id: str, request_id: str, response: dict):
         # HARDENING TO DB
         html = response.get("content", "")
         url = task_status[request_id].get("url", "")
+        created_at = task_status[request_id].get("created_at", 0)
         if html and url:
-            task_status[request_id]["saved_to_db"] = parse_and_save_data(html, url)
+            task_status[request_id]["saved_to_db"] = parse_and_save_data(html, url, request_id, created_at)
             
         save_tasks()
         return {"status": "ok", "ping": {
