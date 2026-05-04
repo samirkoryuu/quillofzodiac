@@ -3,8 +3,9 @@ import uuid
 import requests as sync_requests
 
 # Configuration
-HUB_URL = globals().get('HUB_URL', "https://hiveslave-scraper.onrender.com")
-CLIENT_ID = globals().get('CLIENT_ID', f"phone_{uuid.uuid4().hex[:8]}")
+HUB_URL = globals().get('HUB_URL', "http://localhost:9999")
+API_KEY = "hiveslave_secret_key_20262025202420232022202120100000"
+CLIENT_ID = "test_node_local"
 
 def perform_scrape(url, wait_selector):
     """Performs the actual scrape using standard requests."""
