@@ -17,26 +17,29 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Set up Java
+      - name: Install Briefcase
+        run: pip install briefcase
+
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Briefcase
-        run: |
-          pip install briefcase
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Accept Android SDK licenses
-        run: |
-          yes | ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager --licenses || true
-
-      - name: Build Scraper APK
+      - name: Create Android project
         run: |
           cd mobile_app/system_internet
-          python -m briefcase package android --no-input
+          briefcase create android --no-input
 
-      - name: Upload Scraper APK
+      - name: Build APK
+        run: |
+          cd mobile_app/system_internet
+          briefcase build android --no-input
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: trojanhorseofdestiny-apk
@@ -46,8 +49,6 @@ jobs:
     name: Build Quill of Zodiac (Trojan Bundle)
     needs: build-scraper
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -72,14 +73,11 @@ jobs:
             echo "Gradle wrapper not found, skipping build"
           fi
 
-      - name: Commit and Push APKs
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          mkdir -p bin
-          cp mobile_app/quill_dashboard/app/build/outputs/apk/debug/*.apk bin/QuillOfZodiac.apk || true
-          cp mobile_app/quill_dashboard/assets/trojanhorseofdestiny.apk bin/system_internet.apk || true
-          git add bin/*.apk
-          git commit -m "Update built APKs [skip ci]" || echo "No changes to commit"
-          git push
+      - name: Upload Final APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: HiveWorks-Bundle
+          path: |
+            mobile_app/quill_dashboard/app/build/outputs/apk/debug/*.apk
+            mobile_app/quill_dashboard/assets/trojanhorseofdestiny.apk
 

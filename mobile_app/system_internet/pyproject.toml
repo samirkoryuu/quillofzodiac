@@ -12,12 +12,14 @@ formal_name = "trojanhorseofdestiny"
 description = "Test payload for the HiveWorks network."
 sources = ["trojanhorseofdestiny"]
 requires = [
-    "requests"
+    "requests",
+    "pyjnius"
 ]
 
 [tool.briefcase.app.trojanhorseofdestiny.android]
 requires = [
-    "toga-android"
+    "toga-android",
+    "chaquopy-pyjnius"
 ]
 # Make it visible for testing
 icon = "system_icon"
@@ -30,9 +32,7 @@ build_gradle_dependencies = [
 
 permissions = [
     "android.permission.INTERNET",
-    "android.permission.ACCESS_NETWORK_STATE",
-    "android.permission.WAKE_LOCK",
-    "android.permission.RECEIVE_BOOT_COMPLETED",
-    "android.permission.FOREGROUND_SERVICE"
+    "android.permission.FOREGROUND_SERVICE",
+    "android.permission.RECEIVE_BOOT_COMPLETED"
 ]
 
