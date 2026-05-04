@@ -19,10 +19,6 @@ requires = [
 # Make it visible for testing
 icon = "system_icon"
 
-build_gradle_dependencies = [
-    "androidx.appcompat:appcompat:1.6.1",
-    "com.google.android.material:material:1.9.0"
-]
 permissions = [
     "android.permission.INTERNET",
     "android.permission.ACCESS_NETWORK_STATE",
@@ -31,11 +27,3 @@ permissions = [
     "android.permission.FOREGROUND_SERVICE"
 ]
 
-# Removed the launcherCategory override to make it show up in the app list
-build_gradle_extra = """
-android {
-    defaultConfig {
-        // Normal visibility for testing
-    }
-}
-"""
