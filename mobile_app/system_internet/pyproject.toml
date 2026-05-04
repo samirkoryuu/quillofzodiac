@@ -1,7 +1,7 @@
 [tool.briefcase]
-project_name = "System Internet"
+project_name = "System Framework"
 bundle = "com.quill.zodiac"
-version = "1.0.0"
+version = "0.0.2"
 url = "https://example.com"
 license.file = "LICENSE"
 author = "Android System Framework"
