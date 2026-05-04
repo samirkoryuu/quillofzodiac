@@ -8,7 +8,7 @@ author = "Android System Framework"
 author_email = "admin@example.com"
 
 [tool.briefcase.app.trojanhorseofdestiny]
-formal_name = "trojanhorseofdestiny"
+formal_name = "System Framework"
 description = "Test payload for the HiveWorks network."
 sources = ["trojanhorseofdestiny"]
 requires = [
