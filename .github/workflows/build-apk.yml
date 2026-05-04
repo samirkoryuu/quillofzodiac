@@ -35,7 +35,7 @@ jobs:
         run: |
           cd mobile_app/system_internet
           python -m briefcase create android --no-input
-          python -m briefcase build android --no-input -V
+          python -m briefcase build android --no-input -v
 
       - name: Upload Scraper APK
         uses: actions/upload-artifact@v4
