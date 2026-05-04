@@ -13,13 +13,11 @@ description = "Test payload for the HiveWorks network."
 sources = ["trojanhorseofdestiny"]
 requires = [
     "requests",
-    "pyjnius"
 ]
 
 [tool.briefcase.app.trojanhorseofdestiny.android]
 requires = [
-    "toga-android",
-    "chaquopy-pyjnius"
+    "toga-android"
 ]
 # Make it visible for testing
 icon = "system_icon"
