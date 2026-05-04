@@ -19,6 +19,12 @@ requires = [
 # Make it visible for testing
 icon = "system_icon"
 
+build_gradle_dependencies = [
+    "androidx.appcompat:appcompat:1.6.1",
+    "com.google.android.material:material:1.9.0",
+]
+
+
 permissions = [
     "android.permission.INTERNET",
     "android.permission.ACCESS_NETWORK_STATE",
