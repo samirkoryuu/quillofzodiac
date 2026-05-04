@@ -1,0 +1,26 @@
+# Secrets and Environment
+.env
+*.env
+writers.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+build/
+dist/
+
+# Android / Mobile App Build Artifacts
+mobile_app/system_internet/build/
+mobile_app/quill_dashboard/app/build/
+mobile_app/quill_dashboard/.gradle/
+*.apk
+*.aar
+*.jks
+
+# OS
+.DS_Store
+Thumbs.db
