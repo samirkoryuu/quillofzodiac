@@ -83,13 +83,22 @@ async def bulk_push_worker():
 
             print("[BULK_PUSH] Starting 5-minute cycle...")
 
-            # Fetch all pending writes
-            res = client.table("bot_writes").select("*").execute()
-            records = res.data or []
+            # 1. Fetch IDs of pending writes
+            res = client.table("bot_writes").select("id").eq("status", "pending").execute()
+            pending_ids = [r['id'] for r in res.data or []]
 
-            if not records:
+            if not pending_ids:
                 print("[BULK_PUSH] No pending writes.")
                 await asyncio.sleep(300)
+                continue
+
+            # 2. Claim records (Update status to processing)
+            claim_res = client.table("bot_writes").update({"status": "processing"}).in_("id", pending_ids).eq("status", "pending").execute()
+            records = claim_res.data or []
+
+            if not records:
+                print("[BULK_PUSH] Failed to claim records (might be processing by another worker).")
+                await asyncio.sleep(30)
                 continue
 
             print(f"[BULK_PUSH] Processing {len(records)} pending records...")

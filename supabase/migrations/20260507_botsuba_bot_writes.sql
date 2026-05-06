@@ -12,10 +12,12 @@ CREATE TABLE IF NOT EXISTS public.bot_writes (
     xp          INTEGER DEFAULT 0,   -- XP delta (+/-)
     action      TEXT,                -- e.g. 'give_honey', 'add_xp', 'purchase'
     metadata    JSONB,               -- Any extra data (item bought, reason, etc.)
+    status      TEXT DEFAULT 'pending', -- pending, processing, done
     created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Index for bulk push worker performance
+CREATE INDEX IF NOT EXISTS idx_bot_writes_status   ON public.bot_writes(status);
 CREATE INDEX IF NOT EXISTS idx_bot_writes_owner    ON public.bot_writes(owner_id);
 CREATE INDEX IF NOT EXISTS idx_bot_writes_created  ON public.bot_writes(created_at);
 

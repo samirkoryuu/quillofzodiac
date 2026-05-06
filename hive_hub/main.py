@@ -299,6 +299,10 @@ async def register_client(client_id: str):
     """Phones pick up work from the global pool."""
     if client_id not in clients:
         clients[client_id] = {"last_seen": 0}
+        if DUAL_DB_ENABLED:
+            int_id = get_integer_id(client_id, 'node')
+            print(f"[HUB] Node '{client_id}' registered → Int ID: {int_id}")
+            
     clients[client_id]['last_seen'] = time.time()
     
     if not task_queue.empty():
