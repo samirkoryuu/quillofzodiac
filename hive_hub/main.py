@@ -75,7 +75,7 @@ async def archive_sweeper():
                             power_ranking = EXCLUDED.power_ranking,
                             last_change_at = %s
                         """, (
-                            f['task_id'], f['book'], f['chapters'], f['genre'], 
+                            f['book_id'], f['book'], f['chapters'], f['genre'], 
                             f['collections'], f['views'], f['power_ranking'], 
                             int(time.time()), int(time.time())
                         ))
@@ -202,6 +202,7 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
                 "penname": penname,
                 "country": country,
                 "book": b.get('bookName', 'Untitled'),
+                "book_id": str(b.get('bookId', '')),
                 "genre": b.get('categoryName', 'Unknown'),
                 "collections": b.get('collectNum', 0),
                 "chapters": b.get('chapterNum', 0),
