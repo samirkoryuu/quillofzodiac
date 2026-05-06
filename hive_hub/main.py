@@ -11,10 +11,19 @@ from psycopg2.extras import RealDictCursor
 from typing import Dict, Optional, List
 from supabase import create_client, Client
 
-# Supabase Configuration
+# Supabase Configuration (Fail-Safe Initialization)
 SUPABASE_URL = "https://fnmjjvzzdiipqtqkvaki.supabase.co"
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." # Fallback to Anon if Service not found
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." # Fallback
+supabase: Optional[Client] = None
+
+try:
+    if SUPABASE_URL and SUPABASE_KEY and "..." not in SUPABASE_KEY:
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        print("✅ Supabase Client Initialized.")
+    else:
+        print("⚠️ Supabase Client skipped: Missing or placeholder key.")
+except Exception as e:
+    print(f"❌ Supabase Init Error: {e}")
 
 app = FastAPI(title="HiveSlave Scraper Hub")
 
@@ -54,8 +63,12 @@ async def archive_sweeper():
     """Background task: Moves Supabase findings to CockroachDB every hour."""
     while True:
         try:
-            print("[SWEEPER] Starting hourly archive cycle...")
             # 1. Fetch from Supabase
+            if not supabase:
+                print("[SWEEPER] Skipping: Supabase client not initialized.")
+                await asyncio.sleep(600)
+                continue
+                
             response = supabase.table("recent_findings").select("*").execute()
             findings = response.data
             
@@ -64,20 +77,20 @@ async def archive_sweeper():
                 if conn:
                     cur = conn.cursor()
                     for f in findings:
-                        # Archive to wn_books
+                        # Archive to wn_books (Handling Composite Key: book_id + profile_id)
                         cur.execute("""
-                            INSERT INTO wn_books (book_id, title, chapter_count, genre, collections, views, power_ranking, last_change_at)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                            ON CONFLICT (book_id) DO UPDATE SET
+                            INSERT INTO wn_books (book_id, profile_id, title, chapter_count, genre, collections, views, power_ranking, last_change_at)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            ON CONFLICT (book_id, profile_id) DO UPDATE SET
                             chapter_count = EXCLUDED.chapter_count,
                             collections = EXCLUDED.collections,
                             views = EXCLUDED.views,
                             power_ranking = EXCLUDED.power_ranking,
-                            last_change_at = %s
+                            last_change_at = EXCLUDED.last_change_at
                         """, (
-                            f['book_id'], f['book'], f['chapters'], f['genre'], 
+                            f['book_id'], f['profile_id'], f['book'], f['chapters'], f['genre'], 
                             f['collections'], f['views'], f['power_ranking'], 
-                            int(time.time()), int(time.time())
+                            int(time.time())
                         ))
                     conn.commit()
                     cur.close()
@@ -190,6 +203,7 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
         books_data = data.get('props', {}).get('pageProps', {}).get('data', {}).get('bookList', [])
         
         penname = user_info.get('userName', 'Unknown')
+        profile_id = str(user_info.get('userId', 'Unknown'))
         country = user_info.get('areaName', 'Unknown')
         
         findings = []
@@ -203,6 +217,7 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
                 "country": country,
                 "book": b.get('bookName', 'Untitled'),
                 "book_id": str(b.get('bookId', '')),
+                "profile_id": profile_id,
                 "genre": b.get('categoryName', 'Unknown'),
                 "collections": b.get('collectNum', 0),
                 "chapters": b.get('chapterNum', 0),
@@ -213,10 +228,11 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
             findings.append(finding)
             
             # RELAY TO SUPABASE (Recent Findings)
-            supabase.table("recent_findings").insert(finding).execute()
+            if supabase:
+                supabase.table("recent_findings").insert(finding).execute()
 
         # REWARD: 10 Cloud Marks
-        if user_id:
+        if user_id and supabase:
             supabase.rpc("award_cloud_marks", {"u_id": user_id, "amount": 10}).execute()
             
         return True

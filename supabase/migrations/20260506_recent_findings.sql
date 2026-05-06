@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS public.recent_findings (
     country TEXT,
     book TEXT NOT NULL,
     book_id TEXT,
+    profile_id TEXT,
     genre TEXT,
     collections INTEGER DEFAULT 0,
     chapters INTEGER DEFAULT 0,
