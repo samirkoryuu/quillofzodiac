@@ -4,4 +4,4 @@ pydantic==2.5.2
 python-dotenv==1.0.0
 requests
 psycopg2-binary
-supabase==2.3.0
+supabase==2.7.4
