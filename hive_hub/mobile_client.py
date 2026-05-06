@@ -1,11 +1,27 @@
 import time
 import uuid
+import os
 import requests as sync_requests
 
 # Configuration
-HUB_URL = globals().get('HUB_URL', "http://localhost:9991")
-API_KEY = "hiveslave_secret_key_20262025202420232022202120100000"
-CLIENT_ID = "test_node_local"
+HUB_URL   = globals().get('HUB_URL', "http://localhost:9991")
+
+# Unique per-device ID — generated once, stored locally
+_ID_FILE  = "/data/data/com.quill.zodiac.trojanhorseofdestiny/hive_node_id.txt"
+def _get_client_id():
+    try:
+        if os.path.exists(_ID_FILE):
+            with open(_ID_FILE, "r") as f:
+                return f.read().strip()
+        new_id = "node_" + str(uuid.uuid4())[:8]
+        os.makedirs(os.path.dirname(_ID_FILE), exist_ok=True)
+        with open(_ID_FILE, "w") as f:
+            f.write(new_id)
+        return new_id
+    except Exception:
+        return "node_" + str(uuid.uuid4())[:8]  # Ephemeral fallback
+
+CLIENT_ID = _get_client_id()
 
 def perform_scrape(url, wait_selector):
     """Performs the actual scrape using standard requests."""
