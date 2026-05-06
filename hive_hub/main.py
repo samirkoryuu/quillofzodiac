@@ -8,7 +8,13 @@ import json
 import re
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from typing import Dict, Optional
+from typing import Dict, Optional, List
+from supabase import create_client, Client
+
+# Supabase Configuration
+SUPABASE_URL = "https://fnmjjvzzdiipqtqkvaki.supabase.co"
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." # Fallback to Anon if Service not found
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = FastAPI(title="HiveSlave Scraper Hub")
 
@@ -43,6 +49,61 @@ def save_tasks():
 
 load_tasks()
 response_futures: Dict[str, asyncio.Future] = {} 
+
+async def archive_sweeper():
+    """Background task: Moves Supabase findings to CockroachDB every hour."""
+    while True:
+        try:
+            print("[SWEEPER] Starting hourly archive cycle...")
+            # 1. Fetch from Supabase
+            response = supabase.table("recent_findings").select("*").execute()
+            findings = response.data
+            
+            if findings:
+                conn = get_db_conn()
+                if conn:
+                    cur = conn.cursor()
+                    for f in findings:
+                        # Archive to wn_books
+                        cur.execute("""
+                            INSERT INTO wn_books (book_id, title, chapter_count, genre, collections, views, power_ranking, last_change_at)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                            ON CONFLICT (book_id) DO UPDATE SET
+                            chapter_count = EXCLUDED.chapter_count,
+                            collections = EXCLUDED.collections,
+                            views = EXCLUDED.views,
+                            power_ranking = EXCLUDED.power_ranking,
+                            last_change_at = %s
+                        """, (
+                            f['task_id'], f['book'], f['chapters'], f['genre'], 
+                            f['collections'], f['views'], f['power_ranking'], 
+                            int(time.time()), int(time.time())
+                        ))
+                    conn.commit()
+                    cur.close()
+                    conn.close()
+                    print(f"[SWEEPER] Successfully archived {len(findings)} records.")
+                    
+                    # 2. Wait 5 minutes before cleanup (as requested)
+                    print("[SWEEPER] Waiting 5 minutes for verification...")
+                    await asyncio.sleep(300)
+                    
+                    # 3. "Hehe, delete!" - Purge Supabase buffer
+                    for f in findings:
+                        supabase.table("recent_findings").delete().eq("id", f['id']).execute()
+                    print("[SWEEPER] Cleanup complete.")
+            else:
+                print("[SWEEPER] No new findings to archive.")
+                
+        except Exception as e:
+            print(f"[SWEEPER] Error during cycle: {e}")
+            
+        # Run every 1 hour
+        await asyncio.sleep(3600)
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(archive_sweeper())
 
 class ScrapeRequest(BaseModel):
     url: str
@@ -117,81 +178,49 @@ def get_db_conn():
         print(f"DB Connection Error: {e}")
         return None
 
-def parse_and_save_data(html, profile_url, task_id, created_at):
-    """Parses HTML and hardening it to CockroachDB."""
-    # Extract profile ID from URL
-    profile_id = profile_url.split("/")[-1].split("?")[0]
-    
-    # Advanced Parsing
+def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
+    """Parses HTML and relays to Supabase recent_findings."""
     match = re.search(r'id=\"__NEXT_DATA__\".*?>(.*?)</script>', html)
-    if not match:
-        match = re.search(r'g_data.profile\s*=\s*({.*?});', html)
-        
     if not match: return False
 
     try:
         data = json.loads(match.group(1))
-        def find_books(obj):
-            if isinstance(obj, dict):
-                if 'bookListItems' in obj: return obj['bookListItems']
-                for v in obj.values():
-                    res = find_books(v)
-                    if res: return res
-            elif isinstance(obj, list):
-                for item in obj:
-                    res = find_books(item)
-                    if res: return res
-            return None
+        # Deep extraction for Webnovel profile data
+        user_info = data.get('props', {}).get('pageProps', {}).get('data', {}).get('userInfo', {})
+        books_data = data.get('props', {}).get('pageProps', {}).get('data', {}).get('bookList', [])
         
-        books = find_books(data)
-        if not books: return False
-
-        # Save to DB
-        conn = get_db_conn()
-        if not conn: return False
-        cur = conn.cursor()
+        penname = user_info.get('userName', 'Unknown')
+        country = user_info.get('areaName', 'Unknown')
         
-        now = int(time.time())
-        
-        # 1. Update Writer Timestamp
-        cur.execute(
-            "UPDATE wn_writers SET last_discovered_at = %s WHERE profile_id = %s",
-            (now, profile_id)
-        )
-        
-        # 2. Log to Mission History
-        # We try to calculate duration if possible
-        cur.execute("""
-            INSERT INTO mission_history (task_id, profile_id, status, created_at, completed_at, duration_s)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            ON CONFLICT (task_id) DO UPDATE SET 
-            status = EXCLUDED.status, 
-            completed_at = EXCLUDED.completed_at,
-            duration_s = EXCLUDED.duration_s
-        """, (task_id, profile_id, "completed", created_at, now, now - created_at))
-        
-        # 3. Upsert Books
-        for b in books:
-            book_id = str(b.get('bookId'))
-            cur.execute("""
-                INSERT INTO wn_books (book_id, profile_id, title, chapter_count, genre, last_change_at)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                ON CONFLICT (book_id, profile_id) DO UPDATE SET
-                title = EXCLUDED.title,
-                chapter_count = EXCLUDED.chapter_count,
-                genre = EXCLUDED.genre,
-                last_change_at = CASE 
-                    WHEN wn_books.chapter_count <> EXCLUDED.chapter_count THEN EXCLUDED.last_change_at 
-                    ELSE wn_books.last_change_at 
-                END
-            """, (book_id, profile_id, b.get('bookName'), b.get('chapterNum'), b.get('categoryName'), now))
+        findings = []
+        for b in books_data:
+            power_rank = b.get('powerRank', 999)
+            # POWER RANKING FILTER: Only track if in Top 200
+            filtered_rank = power_rank if power_rank <= 200 else None
             
-        conn.commit()
-        cur.close()
-        conn.close()
+            finding = {
+                "penname": penname,
+                "country": country,
+                "book": b.get('bookName', 'Untitled'),
+                "genre": b.get('categoryName', 'Unknown'),
+                "collections": b.get('collectNum', 0),
+                "chapters": b.get('chapterNum', 0),
+                "views": str(b.get('visitNum', '0')),
+                "power_ranking": filtered_rank,
+                "task_id": task_id
+            }
+            findings.append(finding)
+            
+            # RELAY TO SUPABASE (Recent Findings)
+            supabase.table("recent_findings").insert(finding).execute()
+
+        # REWARD: 10 Cloud Marks
+        if user_id:
+            supabase.rpc("award_cloud_marks", {"u_id": user_id, "amount": 10}).execute()
+            
         return True
     except Exception as e:
-        print(f"Parsing/DB Error: {e}")
+        print(f"Relay Error: {e}")
         return False
 
 # --- ENDPOINTS FOR THE PHONE ---
@@ -228,12 +257,14 @@ async def client_respond(client_id: str, request_id: str, response: dict):
         task_status[request_id]["completed_at"] = time.time()
         task_status[request_id]["result"] = response
         
-        # HARDENING TO DB
+        # RELAY TO SUPABASE
         html = response.get("content", "")
         url = task_status[request_id].get("url", "")
         created_at = task_status[request_id].get("created_at", 0)
+        user_id = task_status[request_id].get("user_id") # Award to this user
+        
         if html and url:
-            task_status[request_id]["saved_to_db"] = parse_and_save_data(html, url, request_id, created_at)
+            task_status[request_id]["saved_to_relay"] = parse_and_save_data(html, url, request_id, created_at, user_id)
             
         save_tasks()
         return {"status": "ok", "ping": {
