@@ -13,9 +13,9 @@ from supabase import create_client, Client
 
 # Dual-DB Routing
 try:
-    from sequencer import get_integer_id, which_db
-    from router import get_db_conn as route_db_conn, get_both_connections
-    from bulk_push import bulk_push_worker
+    from .sequencer import get_integer_id, which_db
+    from .router import get_db_conn as route_db_conn, get_both_connections
+    from .bulk_push import bulk_push_worker
     DUAL_DB_ENABLED = True
     print("✅ Dual-DB routing modules loaded.")
 except ImportError as e:
