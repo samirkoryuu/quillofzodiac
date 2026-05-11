@@ -244,17 +244,24 @@ async def check_task(task_id: str, _=Depends(verify_api_key)):
         
     return task
 
-@app.post("/sync-stats")
-async def trigger_sync(request: Request, _=Depends(verify_api_key)):
-    """Manually triggers a BotSuba → Master DB sync."""
-    if not DUAL_DB_ENABLED:
-        return {"status": "skipped", "detail": "Dual-DB mode not enabled."}
+@app.post("/set-main-book")
+async def set_main_book(req: Dict, _=Depends(verify_api_key)):
+    """Manually sets the 'Main' book for a writer."""
+    user_id = req.get("user_id")
+    book_id = req.get("book_id")
+    if not user_id or not book_id:
+        raise HTTPException(status_code=400, detail="Missing user_id or book_id")
     
-    success = await perform_sync()
-    if success:
-        return {"status": "success", "detail": "Stats reconciliation complete."}
-    else:
-        return {"status": "error", "detail": "Sync failed or already in progress."}
+    if supabase:
+        try:
+            supabase.table("writer_stats").upsert({
+                "user_id": user_id,
+                "main_book_id": str(book_id)
+            }).execute()
+            return {"status": "success", "message": f"Main book set to {book_id}"}
+        except Exception as e:
+            return {"status": "error", "detail": str(e)}
+    return {"status": "error", "detail": "Supabase not connected"}
 
 # --- DATABASE SETUP ---
 # MainCock = DB1 (odd IDs) | MainButt = DB2 (even IDs)
@@ -291,51 +298,79 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
         target_db  = which_db(profile_id, 'writer') if DUAL_DB_ENABLED else 'MainCock (DB1)'
         print(f"[HUB] Writer '{penname}' (ID:{profile_id}) → {target_db}")
 
-        # --- SUMMARIZATION LOGIC ---
+        # --- CATEGORIZATION LOGIC ---
         total_chapters = 0
         total_books = len(books_data)
-        main_book = None
-        max_views = -1
         
+        # 1. Fetch Previous Stats to detect "Latest" (Chapter Change)
+        prev_chapters = {}
+        if supabase:
+            try:
+                # Look at the most recent successful findings for this writer
+                prev_res = supabase.table("recent_findings").select("book_id, chapters").eq("profile_id", profile_id).order("id", { "ascending": False }).limit(20).execute()
+                for r in prev_res.data or []:
+                    if r['book_id'] not in prev_chapters:
+                        prev_chapters[r['book_id']] = r['chapters']
+            except: pass
+
+        # 2. Fetch Manual "Main" Book Setting
+        manual_main_id = None
+        if user_id and supabase:
+            try:
+                stats_res = supabase.table("writer_stats").select("main_book_id").eq("user_id", user_id).execute()
+                if stats_res.data: manual_main_id = stats_res.data[0].get("main_book_id")
+            except: pass
+
+        highest_book_id = None
+        latest_book_id  = None
+        max_chapters = -1
+        
+        # Pass 1: Identify Highest and Latest
+        for b in books_data:
+            bid = str(b.get('bookId', ''))
+            chaps = b.get('chapterNum', 0)
+            total_chapters += chaps
+            
+            # Highest: Most Chapters
+            if chaps > max_chapters:
+                max_chapters = chaps
+                highest_book_id = bid
+            
+            # Latest: Chapter count increased since last scrape
+            if bid in prev_chapters and chaps > prev_chapters[bid]:
+                latest_book_id = bid
+
+        # Pass 2: Save with Tags
         findings = []
         for b in books_data:
-            book_id = str(b.get('bookId', ''))
+            bid = str(b.get('bookId', ''))
             book_name = b.get('bookName', 'Untitled')
-            chapters = b.get('chapterNum', 0)
-            views = int(b.get('visitNum', 0)) if str(b.get('visitNum', '0')).isdigit() else 0
             
-            total_chapters += chapters
-            
-            # Identify Main Book (Highest Views)
-            if views > max_views:
-                max_views = views
-                main_book = book_name
-
-            power_rank    = b.get('powerRank', 999)
-            filtered_rank = power_rank if power_rank <= 200 else None
+            categories = []
+            if bid == manual_main_id: categories.append("Main")
+            if bid == highest_book_id: categories.append("Highest")
+            if bid == latest_book_id:  categories.append("Latest")
 
             finding = {
                 "penname":       penname,
                 "country":       country,
                 "book":          book_name,
-                "book_id":       book_id,
+                "book_id":       bid,
                 "profile_id":    profile_id,
                 "genre":         b.get('categoryName', 'Unknown'),
                 "collections":   b.get('collectNum', 0),
-                "chapters":      chapters,
-                "views":         str(views),
-                "power_ranking": filtered_rank,
+                "chapters":      b.get('chapterNum', 0),
+                "views":         str(b.get('visitNum', '0')),
+                "power_ranking": b.get('powerRank'),
                 "task_id":       task_id,
-                "is_main":       (book_name == main_book)
+                "category_tags": categories
             }
             findings.append(finding)
 
-            # 1. Fast relay to AppSuba (recent_findings)
             if supabase:
                 try:
                     supabase.table("recent_findings").insert(finding).execute()
-                except:
-                    pass
+                except: pass
 
         # 2. Update Global Writer Stats/Profile in AppSuba
         if user_id and supabase:
