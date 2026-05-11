@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends, Header, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uuid
 import asyncio
@@ -37,6 +38,14 @@ except Exception as e:
     print(f"❌ Supabase Init Error: {e}")
 
 app = FastAPI(title="HiveSlave Scraper Hub")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Configuration
 API_KEY = "hiveslave_secret_key_20262025202420232022202120100000"
