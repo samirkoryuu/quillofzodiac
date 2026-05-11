@@ -5,3 +5,7 @@ python-dotenv==1.0.0
 requests
 psycopg2-binary
 supabase==2.7.4
+google-generativeai
+playwright
+playwright-stealth
+curl_cffi
