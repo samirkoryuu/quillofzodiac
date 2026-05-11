@@ -49,7 +49,8 @@ def main():
     while True:
         try:
             # 1. Register and wait for a task (Long Polling)
-            resp = sync_requests.get(f"{HUB_URL}/register/{CLIENT_ID}", timeout=30)
+            # We use a 35s timeout because the Hub waits up to 25s
+            resp = sync_requests.get(f"{HUB_URL}/register/{CLIENT_ID}", timeout=35)
             data = resp.json()
             
             task = data.get("task")
@@ -68,10 +69,14 @@ def main():
                     timeout=10
                 )
                 print(f"Successfully completed task {request_id}")
+            else:
+                # No task? Relax for a few seconds before asking again
+                # This prevents high CPU usage if the Hub is idle
+                time.sleep(2)
             
         except Exception as e:
-            print(f"Error: {e}")
-            time.sleep(5) # Wait before retrying on error
+            print(f"Connection Error: {e}")
+            time.sleep(10) # Wait longer on actual network errors
 
 # Auto-start main when executed via exec() payload from Android
 main()
