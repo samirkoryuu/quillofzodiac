@@ -69,8 +69,8 @@ async def bulk_push_worker():
     5. Write to correct DB
     6. Delete from BotSuba on success
     """
-    from .sequencer import get_integer_id
-    from .router import get_db_conn
+    from sequencer import get_integer_id
+    from router import get_db_conn
 
     await asyncio.sleep(30)  # Wait for server startup before first run
 
