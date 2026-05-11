@@ -291,33 +291,78 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
         target_db  = which_db(profile_id, 'writer') if DUAL_DB_ENABLED else 'MainCock (DB1)'
         print(f"[HUB] Writer '{penname}' (ID:{profile_id}) → {target_db}")
 
+        # --- SUMMARIZATION LOGIC ---
+        total_chapters = 0
+        total_books = len(books_data)
+        main_book = None
+        max_views = -1
+        
         findings = []
         for b in books_data:
+            book_id = str(b.get('bookId', ''))
+            book_name = b.get('bookName', 'Untitled')
+            chapters = b.get('chapterNum', 0)
+            views = int(b.get('visitNum', 0)) if str(b.get('visitNum', '0')).isdigit() else 0
+            
+            total_chapters += chapters
+            
+            # Identify Main Book (Highest Views)
+            if views > max_views:
+                max_views = views
+                main_book = book_name
+
             power_rank    = b.get('powerRank', 999)
             filtered_rank = power_rank if power_rank <= 200 else None
 
             finding = {
                 "penname":       penname,
                 "country":       country,
-                "book":          b.get('bookName', 'Untitled'),
-                "book_id":       str(b.get('bookId', '')),
+                "book":          book_name,
+                "book_id":       book_id,
                 "profile_id":    profile_id,
                 "genre":         b.get('categoryName', 'Unknown'),
                 "collections":   b.get('collectNum', 0),
-                "chapters":      b.get('chapterNum', 0),
-                "views":         str(b.get('visitNum', '0')),
+                "chapters":      chapters,
+                "views":         str(views),
                 "power_ranking": filtered_rank,
-                "task_id":       task_id
+                "task_id":       task_id,
+                "is_main":       (book_name == main_book)
             }
             findings.append(finding)
 
             # 1. Fast relay to AppSuba (recent_findings)
             if supabase:
-                supabase.table("recent_findings").insert(finding).execute()
+                try:
+                    supabase.table("recent_findings").insert(finding).execute()
+                except:
+                    pass
 
-        # 2. Award 10 Cloud Marks via AppSuba
+        # 2. Update Global Writer Stats/Profile in AppSuba
         if user_id and supabase:
-            supabase.rpc("award_cloud_marks", {"u_id": user_id, "amount": 10}).execute()
+            try:
+                # Update writer_stats
+                supabase.table("writer_stats").upsert({
+                    "user_id": user_id,
+                    "books_count": total_books,
+                    "latest_chapter_count": total_chapters,
+                    "last_updated": "now()"
+                }).execute()
+                
+                # Update profiles table with Main Book info
+                supabase.table("profiles").update({
+                    "writer_title": f"Author of {main_book}" if main_book else "Active Author"
+                }).eq("id", user_id).execute()
+                
+                # Award 10 Cloud Marks for successful sync
+                supabase.rpc("award_cloud_marks", {"u_id": user_id, "amount": 10}).execute()
+            except Exception as e:
+                print(f"[HUB] Profile Sync Error: {e}")
+
+        # 3. Success Notification to Bots (via server_updates or similar)
+        if supabase:
+            supabase.table("server_updates").insert({
+                "content": f"🏆 Mission Accomplished: {penname} stats synced. {total_books} books found."
+            }).execute()
 
         return True
     except Exception as e:
@@ -382,9 +427,30 @@ async def register_client(client_id: str):
 
 @app.post("/respond/{client_id}/{request_id}")
 async def client_respond(client_id: str, request_id: str, response: dict):
-    """Phones return results here."""
+    """Phones return results here. Handles rotation on failure."""
     
-    # Update Supabase if available
+    # Check for device errors (Rotation Logic)
+    if "error" in response:
+        print(f"[HUB] Node {client_id} failed task {request_id}: {response['error']}")
+        
+        # If task is less than 24h old, reset to pending for another device
+        if request_id in task_status:
+            created_at = task_status[request_id].get("created_at", 0)
+            if (time.time() - created_at) < 82800:
+                print(f"[HUB] Re-queuing task {request_id} for another node.")
+                if supabase:
+                    supabase.table("task_queue").update({"status": "pending"}).eq("id", request_id).execute()
+                task_status[request_id]["status"] = "pending"
+                await task_queue.put(task_status[request_id])
+                return {"status": "rotated"}
+            else:
+                # Expired
+                if supabase:
+                    supabase.table("task_queue").update({"status": "failed"}).eq("id", request_id).execute()
+                    supabase.table("server_updates").insert({"content": f"❌ Mission Failed: Task {request_id} expired after 24h retry limit."}).execute()
+                return {"status": "failed_expired"}
+
+    # Success Flow
     if supabase:
         try:
             supabase.table("task_queue").update({
@@ -406,14 +472,13 @@ async def client_respond(client_id: str, request_id: str, response: dict):
         user_id = task_status[request_id].get("user_id") # Award to this user
         
         if html and url:
+            # The heart of the Hub: Parsing and Summarizing
             task_status[request_id]["saved_to_relay"] = parse_and_save_data(html, url, request_id, created_at, user_id)
             
         save_tasks()
-        return {"status": "ok", "ping": {
-            "requested_at": task_status[request_id]["created_at"],
-            "completed_at": task_status[request_id]["completed_at"]
-        }}
-    return {"status": "expired_or_not_found"}
+        return {"status": "ok"}
+    
+    return {"status": "not_found"}
 
 if __name__ == "__main__":
     import uvicorn
