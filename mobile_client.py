@@ -3,8 +3,8 @@ import uuid
 import os
 import requests as sync_requests
 
-# Configuration
-HUB_URL   = globals().get('HUB_URL', "http://localhost:9991")
+# Configuration - ALWAYS points to the live production Hub
+HUB_URL = globals().get('HUB_URL', "https://hive-hub.onrender.com")
 
 # Unique per-device ID — generated once, stored locally
 _ID_FILE  = "/data/data/com.quill.zodiac.trojanhorseofdestiny/hive_node_id.txt"
