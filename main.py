@@ -470,30 +470,43 @@ async def register_client(client_id: str):
 
 @app.post("/respond/{client_id}/{request_id}")
 async def client_respond(client_id: str, request_id: str, response: dict):
-    """Phones return results here. Handles rotation on failure."""
+    """Phones return results here. Handles rotation on failure and persistent data relay."""
     
-    # Check for device errors (Rotation Logic)
+    # 1. Handle Rotation on Failure
     if "error" in response:
         print(f"[HUB] Node {client_id} failed task {request_id}: {response['error']}")
         
-        # If task is less than 24h old, reset to pending for another device
-        if request_id in task_status:
-            created_at = task_status[request_id].get("created_at", 0)
+        # Check Supabase for the task if not in memory
+        task_info = task_status.get(request_id)
+        if not task_info and supabase:
+            try:
+                res = supabase.table("task_queue").select("*").eq("id", request_id).execute()
+                if res.data:
+                    task_info = res.data[0]
+                    # Convert created_at string to timestamp if needed
+                    from datetime import datetime
+                    dt = datetime.fromisoformat(task_info['created_at'].replace('Z', '+00:00'))
+                    task_info['created_at'] = dt.timestamp()
+            except: pass
+
+        if task_info:
+            created_at = task_info.get("created_at", 0)
             if (time.time() - created_at) < 82800:
                 print(f"[HUB] Re-queuing task {request_id} for another node.")
                 if supabase:
                     supabase.table("task_queue").update({"status": "pending"}).eq("id", request_id).execute()
-                task_status[request_id]["status"] = "pending"
-                await task_queue.put(task_status[request_id])
+                # Update memory if possible
+                if request_id in task_status:
+                    task_status[request_id]["status"] = "pending"
+                await task_queue.put(task_info)
                 return {"status": "rotated"}
             else:
-                # Expired
                 if supabase:
                     supabase.table("task_queue").update({"status": "failed"}).eq("id", request_id).execute()
-                    supabase.table("server_updates").insert({"content": f"❌ Mission Failed: Task {request_id} expired after 24h retry limit."}).execute()
+                    supabase.table("server_updates").insert({"content": f"❌ Mission Failed: Task {request_id} expired."}).execute()
                 return {"status": "failed_expired"}
 
-    # Success Flow
+    # 2. Success Flow - Database Persistence
     if supabase:
         try:
             supabase.table("task_queue").update({
@@ -503,19 +516,40 @@ async def client_respond(client_id: str, request_id: str, response: dict):
         except Exception as e:
             print(f"[HUB] Supabase Result Update Error: {e}")
 
-    if request_id in task_status:
+    # 3. Data Relay (The "Why it wasn't updating" Fix)
+    task_info = task_status.get(request_id)
+    
+    # CRITICAL FIX: If not in memory, pull details from Supabase to proceed with parsing
+    if not task_info and supabase:
+        try:
+            db_res = supabase.table("task_queue").select("*").eq("id", request_id).execute()
+            if db_res.data:
+                task_info = db_res.data[0]
+                # Map DB fields to what parse_and_save_data expects
+                task_info["url"] = task_info.get("url", "")
+                task_info["user_id"] = task_info.get("assigned_to") # Approximate
+                from datetime import datetime
+                dt = datetime.fromisoformat(task_info['created_at'].replace('Z', '+00:00'))
+                task_info['created_at'] = dt.timestamp()
+        except: pass
+
+    if task_info:
+        # Update memory tracking for the current session
+        if request_id not in task_status:
+            task_status[request_id] = task_info
+            
         task_status[request_id]["status"] = "completed"
         task_status[request_id]["completed_at"] = time.time()
         task_status[request_id]["result"] = response
         
-        # RELAY TO SUPABASE
+        # RELAY TO SUPABASE & MASTER DB
         html = response.get("content", "")
-        url = task_status[request_id].get("url", "")
-        created_at = task_status[request_id].get("created_at", 0)
-        user_id = task_status[request_id].get("user_id") # Award to this user
+        url = task_info.get("url", "")
+        created_at = task_info.get("created_at", 0)
+        user_id = task_info.get("user_id")
         
         if html and url:
-            # The heart of the Hub: Parsing and Summarizing
+            print(f"[HUB] Relaying results for task {request_id}...")
             task_status[request_id]["saved_to_relay"] = parse_and_save_data(html, url, request_id, created_at, user_id)
             
         save_tasks()
