@@ -78,6 +78,7 @@ def save_tasks():
 
 load_tasks()
 response_futures: Dict[str, asyncio.Future] = {} 
+client_waiters: Dict[str, asyncio.Event] = {} # Events to wake up long-polling phones
 
 async def archive_sweeper():
     """Hourly: Moves AppSuba recent_findings → correct CockroachDB via router."""
@@ -223,6 +224,10 @@ async def hub_scrape(req: ScrapeRequest, _=Depends(verify_api_key)):
     await task_queue.put(task_info)
     save_tasks()
     
+    # WAKE UP ALL WAITING CLIENTS
+    for event in client_waiters.values():
+        event.set()
+    
     return {"status": "queued", "task_id": task_id}
 
 @app.get("/task-status/{task_id}")
@@ -328,34 +333,50 @@ async def register_legacy():
 
 @app.get("/register/{client_id}")
 async def register_client(client_id: str):
-    """Phones pick up work from the global pool."""
+    """Phones pick up work. Uses Long Polling for instant assignment."""
     if client_id not in clients:
         clients[client_id] = {"last_seen": 0}
-        if DUAL_DB_ENABLED:
-            int_id = get_integer_id(client_id, 'node')
-            print(f"[HUB] Node '{client_id}' registered → Int ID: {int_id}")
+        print(f"[HUB] New Node registered: {client_id}")
             
     clients[client_id]['last_seen'] = time.time()
     
-    # 1. Try local memory queue first (Hot tasks)
-    if not task_queue.empty():
+    # Create or reset wait event for this client
+    if client_id not in client_waiters:
+        client_waiters[client_id] = asyncio.Event()
+    client_waiters[client_id].clear()
+
+    # LONG POLLING LOOP (Wait up to 25s for a task)
+    for _ in range(25): # 25 seconds max
+        # 1. Check local memory queue (Fastest)
+        if not task_queue.empty():
+            try:
+                task = task_queue.get_nowait()
+                # Mark as active in Supabase immediately
+                if supabase:
+                    supabase.table("task_queue").update({"status": "active"}).eq("id", task['id']).execute()
+                return {"task": task}
+            except asyncio.QueueEmpty:
+                pass
+                
+        # 2. Check Supabase (Persistent pool)
+        if supabase:
+            try:
+                res = supabase.table("task_queue").select("*").eq("status", "pending").limit(1).execute()
+                if res.data:
+                    db_task = res.data[0]
+                    # ATOMIC CLAIM: Only return if we successfully marked it active
+                    claim = supabase.table("task_queue").update({"status": "active"}).eq("id", db_task['id']).eq("status", "pending").execute()
+                    if claim.data:
+                        return {"task": db_task}
+            except Exception as e:
+                print(f"[HUB] DB Pull Error: {e}")
+
+        # No task? Wait for the next one to be pushed
         try:
-            task = await task_queue.get()
-            return {"task": task}
-        except:
-            pass
-            
-    # 2. Fallback to Supabase (Pending tasks from db)
-    if supabase:
-        try:
-            res = supabase.table("task_queue").select("*").eq("status", "pending").limit(1).execute()
-            if res.data:
-                db_task = res.data[0]
-                # Mark as processing
-                supabase.table("task_queue").update({"status": "active"}).eq("id", db_task['id']).execute()
-                return {"task": db_task}
-        except Exception as e:
-            print(f"[HUB] Supabase Queue Fetch Error: {e}")
+            await asyncio.wait_for(client_waiters[client_id].wait(), timeout=1.0)
+            client_waiters[client_id].clear() # Reset for next check in loop
+        except asyncio.TimeoutError:
+            continue # Just loop and check again
 
     return {"task": None}
 
