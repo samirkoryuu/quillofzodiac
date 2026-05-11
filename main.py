@@ -144,14 +144,14 @@ async def archive_sweeper():
                 await _archive_batch(db1_findings, 1, "MainCock (DB1)")
                 await _archive_batch(db2_findings, 2, "MainButt (DB2)")
 
-                # Wait 5 minutes then verify + delete
-                print(f"[SWEEPER] Waiting 5 minutes for verification...")
-                await asyncio.sleep(300)
+                # USER REQUEST: Wait exactly 1 hour after successful push before deleting
+                print(f"[SWEEPER] Push successful. Waiting 1 hour for safety before purging staging area...")
+                await asyncio.sleep(3600) 
 
                 # Delete confirmed records from AppSuba
                 ids = [f['id'] for f in findings]
                 supabase.table("recent_findings").delete().in_("id", ids).execute()
-                print(f"[SWEEPER] 🗑️ Cleared {len(ids)} records from AppSuba. Hehe, delete!")
+                print(f"[SWEEPER] 🗑️ Purge complete. Cleared {len(ids)} records from staging.")
 
         except Exception as e:
             print(f"[SWEEPER] ❌ Cycle error: {e}")
@@ -375,28 +375,36 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
         # 2. Update Global Writer Stats/Profile in AppSuba
         if user_id and supabase:
             try:
-                # Update writer_stats
+                # Get the highest and latest book names for profile mapping
+                highest_name = next((b['book'] for b in findings if "Highest" in b['category_tags']), "N/A")
+                latest_name = next((b['book'] for b in findings if "Latest" in b['category_tags']), highest_name)
+
+                # Update writer_stats (The Core Dashboard)
+                # We fill every field we found: books, chapters, and words
                 supabase.table("writer_stats").upsert({
                     "user_id": user_id,
                     "books_count": total_books,
                     "latest_chapter_count": total_chapters,
-                    "last_updated": "now()"
+                    "last_updated": "now()",
+                    "latest_book_name": latest_name, # Map to specific columns requested
+                    "highest_book_name": highest_name
                 }).execute()
                 
-                # Update profiles table with Main Book info
+                # Update profiles table (Public Identity)
                 supabase.table("profiles").update({
-                    "writer_title": f"Author of {main_book}" if main_book else "Active Author"
+                    "writer_title": f"Master of {highest_name}" if highest_name != "N/A" else "Active Author",
+                    "official_role": "Elite Writer" if total_chapters > 100 else "Writer"
                 }).eq("id", user_id).execute()
                 
                 # Award 10 Cloud Marks for successful sync
                 supabase.rpc("award_cloud_marks", {"u_id": user_id, "amount": 10}).execute()
             except Exception as e:
-                print(f"[HUB] Profile Sync Error: {e}")
+                print(f"[HUB] Profile Mapping Error: {e}")
 
-        # 3. Success Notification to Bots (via server_updates or similar)
+        # 3. Success Notification to Bots (Mission Accomplished signal)
         if supabase:
             supabase.table("server_updates").insert({
-                "content": f"🏆 Mission Accomplished: {penname} stats synced. {total_books} books found."
+                "content": f"🏆 MISSION ACCOMPLISHED: {penname} data grid updated. {total_books} books, {total_chapters} chapters synced."
             }).execute()
 
         return True
