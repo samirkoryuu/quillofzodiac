@@ -57,88 +57,68 @@ async def _push_economy(records: list, conn):
     return pushed
 
 
+async def perform_sync():
+    """Performs a single sync cycle from BotSuba to CockroachDB."""
+    try:
+        client = _get_botsuba()
+        if not client:
+            return False
+
+        from sequencer import get_integer_id
+        from router import get_db_conn
+
+        # 1. Fetch IDs of pending writes
+        res = client.table("bot_writes").select("id").eq("status", "pending").execute()
+        pending_ids = [r['id'] for r in res.data or []]
+
+        if not pending_ids:
+            return True
+
+        # 2. Claim records
+        claim_res = client.table("bot_writes").update({"status": "processing"}).in_("id", pending_ids).eq("status", "pending").execute()
+        records = claim_res.data or []
+
+        if not records:
+            return False
+
+        # Group by integer_id
+        db1_records = []
+        db2_records = []
+        record_ids  = []
+
+        for r in records:
+            owner_id   = str(r.get('owner_id', r.get('discord_id', 'unknown')))
+            owner_type = r.get('owner_type', 'discord_user')
+            integer_id = get_integer_id(owner_id, owner_type)
+            record_ids.append(r['id'])
+
+            if integer_id % 2 == 1:
+                db1_records.append(r)
+            else:
+                db2_records.append(r)
+
+        if db1_records:
+            conn1 = get_db_conn(1)
+            await _push_economy(db1_records, conn1)
+            if conn1: conn1.close()
+
+        if db2_records:
+            conn2 = get_db_conn(2)
+            await _push_economy(db2_records, conn2)
+            if conn2: conn2.close()
+
+        if record_ids:
+            client.table("bot_writes").delete().in_("id", record_ids).execute()
+        
+        return True
+
+    except Exception as e:
+        print(f"[BULK_PUSH] Manual sync error: {e}")
+        return False
+
 async def bulk_push_worker():
-    """
-    Background task: Drains BotSuba into the correct CockroachDB every 5 minutes.
-    
-    Flow:
-    1. Read all pending records from BotSuba `bot_writes` table
-    2. Group by owner_id
-    3. Look up each owner's integer_id via sequencer
-    4. Route to MainCock (odd) or MainButt (even)
-    5. Write to correct DB
-    6. Delete from BotSuba on success
-    """
-    from sequencer import get_integer_id
-    from router import get_db_conn
-
-    await asyncio.sleep(30)  # Wait for server startup before first run
-
+    """Background task: Drains BotSuba into the correct CockroachDB every 5 minutes."""
+    await asyncio.sleep(30)
     while True:
-        try:
-            client = _get_botsuba()
-            if not client:
-                await asyncio.sleep(300)
-                continue
-
-            print("[BULK_PUSH] Starting 5-minute cycle...")
-
-            # 1. Fetch IDs of pending writes
-            res = client.table("bot_writes").select("id").eq("status", "pending").execute()
-            pending_ids = [r['id'] for r in res.data or []]
-
-            if not pending_ids:
-                print("[BULK_PUSH] No pending writes.")
-                await asyncio.sleep(300)
-                continue
-
-            # 2. Claim records (Update status to processing)
-            claim_res = client.table("bot_writes").update({"status": "processing"}).in_("id", pending_ids).eq("status", "pending").execute()
-            records = claim_res.data or []
-
-            if not records:
-                print("[BULK_PUSH] Failed to claim records (might be processing by another worker).")
-                await asyncio.sleep(30)
-                continue
-
-            print(f"[BULK_PUSH] Processing {len(records)} pending records...")
-
-            # Group by integer_id for batch efficiency
-            db1_records = []
-            db2_records = []
-            record_ids  = []
-
-            for r in records:
-                owner_id   = str(r.get('owner_id', r.get('discord_id', 'unknown')))
-                owner_type = r.get('owner_type', 'discord_user')
-                integer_id = get_integer_id(owner_id, owner_type)
-                record_ids.append(r['id'])
-
-                if integer_id % 2 == 1:
-                    db1_records.append(r)
-                else:
-                    db2_records.append(r)
-
-            # Write to MainCock (DB1)
-            if db1_records:
-                conn1 = get_db_conn(1)  # 1 is odd → DB1
-                pushed1 = await _push_economy(db1_records, conn1)
-                if conn1: conn1.close()
-                print(f"[BULK_PUSH] ✅ MainCock: {pushed1} records written.")
-
-            # Write to MainButt (DB2)
-            if db2_records:
-                conn2 = get_db_conn(2)  # 2 is even → DB2
-                pushed2 = await _push_economy(db2_records, conn2)
-                if conn2: conn2.close()
-                print(f"[BULK_PUSH] ✅ MainButt: {pushed2} records written.")
-
-            # Delete all processed records from BotSuba
-            if record_ids:
-                client.table("bot_writes").delete().in_("id", record_ids).execute()
-                print(f"[BULK_PUSH] 🗑️ Cleared {len(record_ids)} records from BotSuba.")
-
-        except Exception as e:
-            print(f"[BULK_PUSH] ❌ Cycle error: {e}")
-
-        await asyncio.sleep(300)  # Run every 5 minutes
+        await perform_sync()
+        await asyncio.sleep(300)

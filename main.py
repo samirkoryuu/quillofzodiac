@@ -16,7 +16,7 @@ from supabase import create_client, Client
 try:
     from sequencer import get_integer_id, which_db
     from router import get_db_conn as route_db_conn, get_both_connections
-    from bulk_push import bulk_push_worker
+    from bulk_push import bulk_push_worker, perform_sync
     DUAL_DB_ENABLED = True
     print("✅ Dual-DB routing modules loaded.")
 except ImportError as e:
@@ -227,6 +227,18 @@ async def check_task(task_id: str, _=Depends(verify_api_key)):
         task["status"] = "expired"
         
     return task
+
+@app.post("/sync-stats")
+async def trigger_sync(request: Request, _=Depends(verify_api_key)):
+    """Manually triggers a BotSuba → Master DB sync."""
+    if not DUAL_DB_ENABLED:
+        return {"status": "skipped", "detail": "Dual-DB mode not enabled."}
+    
+    success = await perform_sync()
+    if success:
+        return {"status": "success", "detail": "Stats reconciliation complete."}
+    else:
+        return {"status": "error", "detail": "Sync failed or already in progress."}
 
 # --- DATABASE SETUP ---
 # MainCock = DB1 (odd IDs) | MainButt = DB2 (even IDs)
