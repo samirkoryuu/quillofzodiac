@@ -281,17 +281,27 @@ def get_db_conn(integer_id: int = 1):
 
 def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
     """Parses HTML, relays to Supabase, and routes to correct CockroachDB."""
+    print(f"[HUB] Starting parse for Task {task_id}...")
     match = re.search(r'id=\"__NEXT_DATA__\".*?>(.*?)</script>', html, re.DOTALL)
-    if not match: return False
+    if not match: 
+        print(f"[HUB] ❌ Regex Fail: Could not find __NEXT_DATA__ in HTML.")
+        return False
 
     try:
         data = json.loads(match.group(1))
-        user_info  = data.get('props', {}).get('pageProps', {}).get('data', {}).get('userInfo', {})
-        books_data = data.get('props', {}).get('pageProps', {}).get('data', {}).get('bookList', [])
+        page_props = data.get('props', {}).get('pageProps', {}).get('data', {})
+        user_info  = page_props.get('userInfo', {})
+        books_data = page_props.get('bookList', [])
+
+        if not books_data:
+            print(f"[HUB] ⚠️ No books found in the profile data.")
+            return False
 
         penname    = user_info.get('userName', 'Unknown')
         profile_id = str(user_info.get('userId', 'Unknown'))
         country    = user_info.get('areaName', 'Unknown')
+        
+        print(f"[HUB] Parsing {len(books_data)} books for {penname} (ID: {profile_id})")
 
         # Get this writer's integer_id for DB routing
         integer_id = get_integer_id(profile_id, 'writer') if DUAL_DB_ENABLED else 1
@@ -365,12 +375,26 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
                 "task_id":       task_id,
                 "category_tags": categories
             }
-            findings.append(finding)
-
+            # 1. Fast relay to AppSuba (recent_findings)
             if supabase:
                 try:
+                    # SCHEMA-AWARE INSERT: We try to insert with categories, 
+                    # but fallback to basic if the table is older.
                     supabase.table("recent_findings").insert(finding).execute()
-                except: pass
+                except Exception as e:
+                    print(f"[HUB] ⚠️ Supabase Staging Error: {e}")
+                    # Try a "Safe Mode" insert with only the most basic columns
+                    safe_finding = {
+                        "penname": penname, "book": book_name, "chapters": b.get('chapterNum', 0),
+                        "profile_id": profile_id, "task_id": task_id
+                    }
+                    try:
+                        supabase.table("recent_findings").insert(safe_finding).execute()
+                        print(f"[HUB] ✅ Safe Mode Sync successful.")
+                    except:
+                        print(f"[HUB] ❌ Complete Sync Failure: Staging table unreachable or restricted.")
+
+        print(f"[HUB] ✅ Data processing complete for {penname}.")
 
         # 2. Update Global Writer Stats/Profile in AppSuba
         if user_id and supabase:
