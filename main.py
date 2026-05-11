@@ -196,18 +196,29 @@ async def get_latest_client():
 async def hub_scrape(req: ScrapeRequest, _=Depends(verify_api_key)):
     """The bot calls this to queue a task."""
     task_id = str(uuid.uuid4())
-    now = time.time()
     
+    # 1. Save to Supabase (Source of Truth)
+    if supabase:
+        try:
+            supabase.table("task_queue").insert({
+                "id": task_id,
+                "url": req.url,
+                "status": "pending",
+                "assigned_to": None  # Global pool
+            }).execute()
+        except Exception as e:
+            print(f"[HUB] Supabase Task Save Error: {e}")
+
+    # 2. Local fallback/tracking
     task_info = {
         "id": task_id,
         "url": req.url,
         "wait_selector": req.wait_selector,
-        "created_at": now,
+        "created_at": time.time(),
         "status": "pending",
         "user_id": req.user_id,
         "result": None
     }
-    
     task_status[task_id] = task_info
     await task_queue.put(task_info)
     save_tasks()
@@ -326,21 +337,42 @@ async def register_client(client_id: str):
             
     clients[client_id]['last_seen'] = time.time()
     
+    # 1. Try local memory queue first (Hot tasks)
     if not task_queue.empty():
         try:
             task = await task_queue.get()
-            # If task already expired while in queue, skip it
-            if (time.time() - task["created_at"]) > 82800:
-                task_status[task["id"]]["status"] = "expired"
-                return {"task": None}
             return {"task": task}
         except:
             pass
+            
+    # 2. Fallback to Supabase (Pending tasks from db)
+    if supabase:
+        try:
+            res = supabase.table("task_queue").select("*").eq("status", "pending").limit(1).execute()
+            if res.data:
+                db_task = res.data[0]
+                # Mark as processing
+                supabase.table("task_queue").update({"status": "active"}).eq("id", db_task['id']).execute()
+                return {"task": db_task}
+        except Exception as e:
+            print(f"[HUB] Supabase Queue Fetch Error: {e}")
+
     return {"task": None}
 
 @app.post("/respond/{client_id}/{request_id}")
 async def client_respond(client_id: str, request_id: str, response: dict):
     """Phones return results here."""
+    
+    # Update Supabase if available
+    if supabase:
+        try:
+            supabase.table("task_queue").update({
+                "status": "completed",
+                "result": response
+            }).eq("id", request_id).execute()
+        except Exception as e:
+            print(f"[HUB] Supabase Result Update Error: {e}")
+
     if request_id in task_status:
         task_status[request_id]["status"] = "completed"
         task_status[request_id]["completed_at"] = time.time()
