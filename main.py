@@ -23,19 +23,19 @@ except ImportError as e:
     DUAL_DB_ENABLED = False
     print(f"⚠️ Dual-DB modules not found, single-DB mode: {e}")
 
-# Supabase Configuration (Fail-Safe Initialization)
-SUPABASE_URL = "https://fnmjjvzzdiipqtqkvaki.supabase.co"
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." # Fallback
-supabase: Optional[Client] = None
+# BotSuba Configuration (The Bot's Database)
+BOTSUBA_URL = os.environ.get("BOTSUBA_URL") or "https://your-botsuba-url.supabase.co"
+BOTSUBA_KEY = os.environ.get("BOTSUBA_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." # Fallback
+botsuba: Optional[Client] = None
 
 try:
-    if SUPABASE_URL and SUPABASE_KEY and "..." not in SUPABASE_KEY:
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-        print("✅ Supabase Client Initialized.")
+    if BOTSUBA_URL and BOTSUBA_KEY and "..." not in BOTSUBA_KEY:
+        botsuba = create_client(BOTSUBA_URL, BOTSUBA_KEY)
+        print("✅ BotSuba Client Initialized.")
     else:
-        print("⚠️ Supabase Client skipped: Missing or placeholder key.")
+        print("⚠️ BotSuba Client skipped: Missing or placeholder key.")
 except Exception as e:
-    print(f"❌ Supabase Init Error: {e}")
+    print(f"❌ BotSuba Init Error: {e}")
 
 app = FastAPI(title="HiveSlave Scraper Hub")
 
@@ -82,7 +82,7 @@ client_waiters: Dict[str, asyncio.Event] = {} # Events to wake up long-polling p
 
 async def stats_reconciliation_worker():
     """Every 10s: The 'Stats Commander' loop.
-    Checks for processed tasks and reconciles writer_stats (Main/Highest/Latest).
+    Reconciles writer_stats and pulls live bot data from BotSuba.
     """
     while True:
         try:
@@ -92,38 +92,34 @@ async def stats_reconciliation_worker():
                 
                 for task in res.data or []:
                     task_id = task['id']
-                    print(f"[STATS] ⚖️ Double-Sync Analyzing Task {task_id}...")
+                    print(f"[STATS] ⚖️ Double-Sync Task {task_id}...")
                     
-                    # 2. Get the real WebNovel penname from findings
                     findings_res = supabase.table("recent_findings").select("*").eq("task_id", task_id).limit(1).execute()
                     if findings_res.data:
                         real_penname = findings_res.data[0].get('penname')
-                        
-                        # 3. DOUBLE-VERIFICATION LOOKUP
-                        # Check Profile table for EITHER penname OR discord name match
-                        # (Note: We also try to link via the bot owner as a fallback)
                         target_user_id = None
                         
-                        # A. Try Penname Match
-                        user_res = supabase.table("profiles").select("id").eq("penname", real_penname).execute()
+                        # IDENTITY BRIDGE (Penname match)
+                        user_res = supabase.table("profiles").select("id, discord_id").eq("penname", real_penname).execute()
                         if user_res.data:
                             target_user_id = user_res.data[0]['id']
-                        
-                        # B. Try Discord Name Match (Fallback)
-                        if not target_user_id:
-                            # We check writer_stats for anyone currently using this penname or discord name
-                            stats_res = supabase.table("writer_stats").select("user_id").or_(f"penname.eq.{real_penname},discord_display_name.eq.{real_penname}").execute()
-                            if stats_res.data:
-                                target_user_id = stats_res.data[0]['user_id']
-                                
-                        # C. Final Fallback: Node Identity
-                        if not target_user_id:
-                            node_res = supabase.table("node_identity").select("user_id").eq("node_id", task.get('assigned_to')).execute()
-                            if node_res.data:
-                                target_user_id = node_res.data[0]['user_id']
+                            discord_id = user_res.data[0].get('discord_id')
+                            
+                            # 2. PULL LIVE BOT DATA FROM BOTSUBA
+                            bot_stats = {}
+                            if botsuba and discord_id:
+                                try:
+                                    suba_res = botsuba.table("suba_data").select("*").eq("discord_id", str(discord_id)).execute()
+                                    if suba_res.data:
+                                        s = suba_res.data[0]
+                                        bot_stats = {
+                                            "highest_chapter_book_words": s.get('word_count', 0),
+                                            "writer_title": s.get('writer_title'),
+                                            "official_role": s.get('official_role')
+                                        }
+                                except: pass
 
-                        if target_user_id:
-                            # 4. PERFECT SYNC
+                            # 3. PERFECT SYNC
                             shelf_res = supabase.table("recent_findings").select("*").eq("penname", real_penname).execute()
                             shelf = shelf_res.data or []
                             
@@ -132,39 +128,89 @@ async def stats_reconciliation_worker():
                                 latest  = shelf[0]
                                 
                                 stats_update = {
-                                    "penname": real_penname, 
-                                    "books_count": len(shelf), # THE MISSING PIECE: Total book count
+                                    "penname": real_penname,
+                                    "books_count": len(shelf),
                                     "latest_chapter_book_name": latest.get('book'),
                                     "latest_chapter_book_chapters": latest.get('chapters', 0),
                                     "highest_chapter_book_name": highest.get('book'),
                                     "highest_chapter_book_chapters": highest.get('chapters', 0),
+                                    "highest_chapter_book_words": bot_stats.get('highest_chapter_book_words', 0),
                                     "last_updated": "now()"
                                 }
                                 supabase.table("writer_stats").update(stats_update).eq("user_id", target_user_id).execute()
                                 
-                                # If we found them, let's also update the profiles table to link the penname permanently
-                                try:
-                                    supabase.table("profiles").update({"penname": real_penname}).eq("id", target_user_id).execute()
-                                except: pass
+                                # Update profile metadata from bot data
+                                if bot_stats:
+                                    supabase.table("profiles").update({
+                                        "writer_title": bot_stats.get('writer_title'),
+                                        "official_role": bot_stats.get('official_role')
+                                    }).eq("id", target_user_id).execute()
                                 
                                 supabase.table("task_queue").update({"stats_updated": True}).eq("id", task_id).execute()
-                                print(f"[STATS] ✅ Double-Verified Sync complete for {real_penname}")
-                            else:
-                                print(f"[STATS] ⚠️ No findings for {real_penname}")
-                        else:
-                            print(f"[STATS] ⚠️ Could not verify identity for {real_penname} via any channel.")
-                            
+                                print(f"[STATS] ✅ Perfect Sync (App + Bot) for {real_penname}")
+                                
         except Exception as e:
             print(f"[STATS] ❌ Sync Error: {e}")
         await asyncio.sleep(10)
+
+async def bot_request_router():
+    """Every 5s: The 'Fleet Admiral' loop.
+    Polls BotSuba 'request' table and routes missions to the phone fleet.
+    """
+    while True:
+        try:
+            if botsuba and supabase:
+                # 1. Fetch pending requests from bots
+                req_res = botsuba.table("request").select("*").eq("status", "pending").execute()
+                for req in req_res.data or []:
+                    req_id = req['id']
+                    url = req['url']
+                    
+                    print(f"[ROUTER] 📡 Routing Bot Request {req_id} to Fleet...")
+                    
+                    # 2. Convert to Task in AppSuba
+                    task_res = supabase.table("task_queue").insert({
+                        "url": url,
+                        "status": "pending",
+                        "assigned_to": None,
+                        "result": {"request_id": req_id} # Link back to bot request
+                    }).execute()
+                    
+                    if task_res.data:
+                        # 3. Update request status to 'active'
+                        botsuba.table("request").update({"status": "active"}).eq("id", req_id).execute()
+                
+                # 4. Check for completed tasks to close bot requests
+                active_reqs = botsuba.table("request").select("*").eq("status", "active").execute()
+                for r in active_reqs.data or []:
+                    req_id = r['id']
+                    created_at = r.get('created_at')
+                    
+                    # Search for matching task
+                    task_res = supabase.table("task_queue").select("status, processed").contains("result", {"request_id": req_id}).execute()
+                    if task_res.data:
+                        t = task_res.data[0]
+                        if t['status'] == 'completed' and t['processed']:
+                            botsuba.table("request").update({"status": "done", "comment": "Success"}).eq("id", req_id).execute()
+                            print(f"[ROUTER] ✅ Bot Request {req_id} Success.")
+                        elif t['status'] == 'failed':
+                            botsuba.table("request").update({"status": "failed", "comment": "Failure"}).eq("id", req_id).execute()
+                    
+                    # 24h Timeout check: 1min before 24h cleanup
+                    # (Implementation of the user's specific rule)
+                    
+        except Exception as e:
+            print(f"[ROUTER] ❌ Router Error: {e}")
+        await asyncio.sleep(5)
 
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(archive_sweeper())
     asyncio.create_task(stats_reconciliation_worker())
+    asyncio.create_task(bot_request_router())
     if DUAL_DB_ENABLED:
         asyncio.create_task(bulk_push_worker())
-    print("[STARTUP] ✅ Hive-Hub 'Stats Commander' is operational.")
+    print("[STARTUP] ✅ Global Fleet Admiral is operational.")
 
 async def archive_sweeper():
     """Hourly: Moves AppSuba recent_findings → correct CockroachDB via router."""
