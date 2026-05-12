@@ -302,11 +302,16 @@ async def archive_sweeper():
                     print(f"[SWEEPER] ✅ {db_label}: {written} records archived.")
                     return written
 
-                await _archive_batch(db1_findings, 1, "MainCock (DB1)")
-                await _archive_batch(db2_findings, 2, "MainButt (DB2)")
+                # Run batches and track success
+                written1 = await _archive_batch(db1_findings, 1, "MainCock (DB1)")
+                written2 = await _archive_batch(db2_findings, 2, "MainButt (DB2)")
 
-                # USER REQUEST: Wait exactly 1 hour after successful push before deleting
-                print(f"[SWEEPER] Push successful. Waiting 1 hour for safety before purging staging area...")
+                # If we had data to write but failed to write any of it, do NOT purge
+                if (db1_findings and written1 == 0) or (db2_findings and written2 == 0):
+                    print("[SWEEPER] ❌ Batch push failed. Integrity check: Purge skipped.")
+                    continue
+
+                print(f"[SWEEPER] Push successful ({written1 + written2} total). Waiting 1 hour for safety before purging staging area...")
                 await asyncio.sleep(3600) 
 
                 # Delete confirmed records from AppSuba

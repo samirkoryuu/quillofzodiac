@@ -47,6 +47,10 @@ def get_integer_id(external_id: str, owner_type: str = "unknown") -> int:
     Returns:
         integer_id (odd → DB1/MainCock, even → DB2/MainButt)
     """
+    # 0. Skip 'unknown' IDs (failed scrapes)
+    if not external_id or external_id == "unknown":
+        return 1
+
     # 1. Check in-memory cache first (fastest)
     if external_id in _id_cache:
         return _id_cache[external_id]

@@ -34,6 +34,15 @@ def get_db_conn(integer_id: int):
         return None
 
     try:
+        # Patch for Render: if url contains a file path for sslrootcert that doesn't exist, use system
+        if "sslrootcert=" in url:
+            import re
+            m = re.search(r"sslrootcert=([^&]+)", url)
+            if m:
+                cert_path = m.group(1)
+                if cert_path != "system" and not os.path.exists(cert_path):
+                    url = url.replace(cert_path, "system")
+        
         conn = psycopg2.connect(url, cursor_factory=RealDictCursor)
         return conn
     except Exception as e:
@@ -61,12 +70,28 @@ def get_both_connections():
     conn2 = None
     if MAINCOCK_URL:
         try:
-            conn1 = psycopg2.connect(MAINCOCK_URL, cursor_factory=RealDictCursor)
+            url = MAINCOCK_URL
+            if "sslrootcert=" in url:
+                import re
+                m = re.search(r"sslrootcert=([^&]+)", url)
+                if m:
+                    cert_path = m.group(1)
+                    if cert_path != "system" and not os.path.exists(cert_path):
+                        url = url.replace(cert_path, "system")
+            conn1 = psycopg2.connect(url, cursor_factory=RealDictCursor)
         except Exception as e:
             print(f"❌ [ROUTER] MainCock connection failed: {e}")
     if MAINBUTT_URL:
         try:
-            conn2 = psycopg2.connect(MAINBUTT_URL, cursor_factory=RealDictCursor)
+            url = MAINBUTT_URL
+            if "sslrootcert=" in url:
+                import re
+                m = re.search(r"sslrootcert=([^&]+)", url)
+                if m:
+                    cert_path = m.group(1)
+                    if cert_path != "system" and not os.path.exists(cert_path):
+                        url = url.replace(cert_path, "system")
+            conn2 = psycopg2.connect(url, cursor_factory=RealDictCursor)
         except Exception as e:
             print(f"❌ [ROUTER] MainButt connection failed: {e}")
     return conn1, conn2
