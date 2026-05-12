@@ -80,61 +80,63 @@ load_tasks()
 response_futures: Dict[str, asyncio.Future] = {} 
 client_waiters: Dict[str, asyncio.Event] = {} # Events to wake up long-polling phones
 
-async def mission_relay_worker():
-    """Every 5s: Checks task_queue for completed missions and refines them into recent_findings."""
-    while True:
-        try:
-            if supabase:
-                # 1. Fetch completed tasks that haven't been synced to findings yet
-                res = supabase.table("task_queue").select("*").eq("status", "completed").limit(10).execute()
-                for task in res.data or []:
-                    request_id = task['id']
-                    result = task.get('result', {})
-                    html = result.get('content', "")
-                    url = task.get('url', "")
-                    user_id = task.get('assigned_to')
-                    
-                    if html and url:
-                        print(f"[RELAY] ⚡ Processing Task {request_id}...")
-                        success = parse_and_save_data(html, url, request_id, time.time(), user_id)
-                        if success:
-                            # 2. Mark as synced so we don't process it again
-                            supabase.table("task_queue").update({"status": "synced"}).eq("id", request_id).execute()
-                            print(f"[RELAY] ✅ Task {request_id} refined and synced.")
-        except Exception as e:
-            print(f"[RELAY] ❌ Error: {e}")
-        await asyncio.sleep(5)
-
 async def stats_reconciliation_worker():
-    """Every 15s: Ensures writer_stats perfectly matches recent_findings (Column-Agnostic)."""
+    """Every 10s: The 'Stats Commander' loop.
+    Checks for processed tasks and reconciles writer_stats (Main/Highest/Latest).
+    """
     while True:
         try:
             if supabase:
-                print("[SYNC] Starting stats reconciliation cycle...")
-                # 1. Fetch recent findings
-                res = supabase.table("recent_findings").select("*").limit(20).execute()
-                findings = res.data or []
+                # 1. Look for tasks processed by the Node.js engine but not yet synced to stats
+                res = supabase.table("task_queue").select("id, assigned_to").eq("processed", True).eq("stats_updated", False).limit(5).execute()
                 
-                for f in findings:
-                    # 2. Dynamic Column Mapping
-                    # We look for ANY ID column that might represent the writer
-                    pid = f.get('profile_id') or f.get('writer_id') or f.get('id') or f.get('penname')
-                    if pid:
-                        # Perform the sync logic here
-                        pass
-                print("[SYNC] ✅ Reconciliation cycle complete.")
+                for task in res.data or []:
+                    task_id = task['id']
+                    user_id = task['assigned_to']
+                    
+                    # 2. Get ALL findings for this specific mission to identify the writer
+                    findings_res = supabase.table("recent_findings").select("*").eq("task_id", task_id).execute()
+                    findings = findings_res.data or []
+                    
+                    if findings:
+                        penname = findings[0]['penname']
+                        print(f"[STATS] ⚖️ Reconciling stats for {penname}...")
+                        
+                        # 3. Fetch the full shelf for this penname to distinguish Main/Highest/Latest
+                        shelf_res = supabase.table("recent_findings").select("*").eq("penname", penname).execute()
+                        shelf = shelf_res.data or []
+                        
+                        if shelf:
+                            # LOGIC: Differentiate books
+                            highest = max(shelf, key=lambda x: x.get('chapters', 0))
+                            latest  = shelf[0] # The one we just found is usually the latest update
+                            
+                            # 4. Perfect Sync to writer_stats
+                            stats_update = {
+                                "latest_chapter_book_name": latest.get('book'),
+                                "latest_chapter_book_chapters": latest.get('chapters', 0),
+                                "highest_chapter_book_name": highest.get('book'),
+                                "highest_chapter_book_chapters": highest.get('chapters', 0),
+                                "last_updated": "now()"
+                            }
+                            
+                            supabase.table("writer_stats").update(stats_update).eq("user_id", user_id).execute()
+                            
+                            # 5. Mark as fully synced
+                            supabase.table("task_queue").update({"stats_updated": True}).eq("id", task_id).execute()
+                            print(f"[STATS] ✅ Perfect Sync complete for {penname}.")
+                            
         except Exception as e:
-            print(f"[SYNC] ❌ Schema Error: {e}")
-        await asyncio.sleep(15)
+            print(f"[STATS] ❌ Sync Error: {e}")
+        await asyncio.sleep(10)
 
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(archive_sweeper())
-    asyncio.create_task(mission_relay_worker())
     asyncio.create_task(stats_reconciliation_worker())
     if DUAL_DB_ENABLED:
         asyncio.create_task(bulk_push_worker())
-    print("[STARTUP] ✅ All Hive-Hub workers (Relay, Sync, Archive) are operational.")
+    print("[STARTUP] ✅ Hive-Hub 'Stats Commander' is operational.")
 
 async def archive_sweeper():
     """Hourly: Moves AppSuba recent_findings → correct CockroachDB via router."""
