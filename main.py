@@ -24,30 +24,30 @@ except ImportError as e:
     print(f"⚠️ Dual-DB modules not found, single-DB mode: {e}")
 
 # BotSuba Configuration (The Bot's Database)
-BOTSUBA_URL = os.environ.get("BOTSUBA_URL") or "https://your-botsuba-url.supabase.co"
-BOTSUBA_KEY = os.environ.get("BOTSUBA_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." # Fallback
+BOTSUBA_URL = os.environ.get("BOTSUBA_URL") or ""
+BOTSUBA_KEY = os.environ.get("BOTSUBA_KEY") or ""
 botsuba: Optional[Client] = None
 
 try:
-    if BOTSUBA_URL and BOTSUBA_KEY and "..." not in BOTSUBA_KEY:
+    if BOTSUBA_URL and BOTSUBA_KEY:
         botsuba = create_client(BOTSUBA_URL, BOTSUBA_KEY)
         print("✅ BotSuba Client Initialized.")
     else:
-        print("⚠️ BotSuba Client skipped: Missing or placeholder key.")
+        print("⚠️ BotSuba Client skipped: Missing BOTSUBA_URL or BOTSUBA_KEY.")
 except Exception as e:
     print(f"❌ BotSuba Init Error: {e}")
 
-# AppSuba Configuration (The Dashboard Database - source of truth for findings & stats)
-APPSUBA_URL = os.environ.get("SUPABASE_URL") or os.environ.get("APPSUBA_URL") or ""
-APPSUBA_KEY = os.environ.get("SUPABASE_SERVICE_KEY") or os.environ.get("APPSUBA_KEY") or ""
-supabase: Optional[Client] = None
+# AppSuba Configuration (The Dashboard/Mobile Bridge)
+APPSUBA_URL = os.environ.get("APPSUBA_URL") or ""
+APPSUBA_KEY = os.environ.get("APPSUBA_KEY") or ""
+appsuba: Optional[Client] = None
 
 try:
-    if APPSUBA_URL and APPSUBA_KEY and "..." not in APPSUBA_KEY:
-        supabase = create_client(APPSUBA_URL, APPSUBA_KEY)
+    if APPSUBA_URL and APPSUBA_KEY:
+        appsuba = create_client(APPSUBA_URL, APPSUBA_KEY)
         print("✅ AppSuba Client Initialized.")
     else:
-        print("⚠️ AppSuba Client skipped: Set SUPABASE_URL and SUPABASE_SERVICE_KEY on Render.")
+        print("⚠️ AppSuba Client skipped: Missing APPSUBA_URL or APPSUBA_KEY.")
 except Exception as e:
     print(f"❌ AppSuba Init Error: {e}")
 
@@ -100,21 +100,21 @@ async def stats_reconciliation_worker():
     """
     while True:
         try:
-            if supabase:
+            if appsuba:
                 # 1. Look for processed tasks
-                res = supabase.table("task_queue").select("*").eq("processed", True).eq("stats_updated", False).limit(5).execute()
+                res = appsuba.table("task_queue").select("*").eq("processed", True).eq("stats_updated", False).limit(5).execute()
                 
                 for task in res.data or []:
                     task_id = task['id']
                     print(f"[STATS] ⚖️ Double-Sync Task {task_id}...")
                     
-                    findings_res = supabase.table("recent_findings").select("*").eq("task_id", task_id).limit(1).execute()
+                    findings_res = appsuba.table("recent_findings").select("*").eq("task_id", task_id).limit(1).execute()
                     if findings_res.data:
                         real_penname = findings_res.data[0].get('penname')
                         target_user_id = None
                         
                         # IDENTITY BRIDGE (Penname match)
-                        user_res = supabase.table("profiles").select("id, discord_id").eq("penname", real_penname).execute()
+                        user_res = appsuba.table("profiles").select("id, discord_id").eq("penname", real_penname).execute()
                         if user_res.data:
                             target_user_id = user_res.data[0]['id']
                             discord_id = user_res.data[0].get('discord_id')
@@ -131,10 +131,13 @@ async def stats_reconciliation_worker():
                                             "writer_title": s.get('writer_title'),
                                             "official_role": s.get('official_role')
                                         }
-                                except: pass
+                                    else:
+                                        print(f"[STATS] ⚠️ No BotSuba data for Discord ID {discord_id}")
+                                except Exception as be:
+                                    print(f"[STATS] BotSuba Data Error: {be}")
 
                             # 3. PERFECT SYNC
-                            shelf_res = supabase.table("recent_findings").select("*").eq("penname", real_penname).execute()
+                            shelf_res = appsuba.table("recent_findings").select("*").eq("penname", real_penname).execute()
                             shelf = shelf_res.data or []
                             
                             if shelf:
@@ -151,16 +154,16 @@ async def stats_reconciliation_worker():
                                     "highest_chapter_book_words": bot_stats.get('highest_chapter_book_words', 0),
                                     "last_updated": "now()"
                                 }
-                                supabase.table("writer_stats").update(stats_update).eq("user_id", target_user_id).execute()
+                                appsuba.table("writer_stats").update(stats_update).eq("user_id", target_user_id).execute()
                                 
                                 # Update profile metadata from bot data
                                 if bot_stats:
-                                    supabase.table("profiles").update({
+                                    appsuba.table("profiles").update({
                                         "writer_title": bot_stats.get('writer_title'),
                                         "official_role": bot_stats.get('official_role')
                                     }).eq("id", target_user_id).execute()
                                 
-                                supabase.table("task_queue").update({"stats_updated": True}).eq("id", task_id).execute()
+                                appsuba.table("task_queue").update({"stats_updated": True}).eq("id", task_id).execute()
                                 print(f"[STATS] ✅ Perfect Sync (App + Bot) for {real_penname}")
                                 
         except Exception as e:
@@ -173,7 +176,7 @@ async def bot_request_router():
     """
     while True:
         try:
-            if botsuba and supabase:
+            if botsuba and appsuba:
                 # 1. Fetch pending requests from bots
                 req_res = botsuba.table("request").select("*").eq("status", "pending").execute()
                 for req in req_res.data or []:
@@ -183,7 +186,7 @@ async def bot_request_router():
                     print(f"[ROUTER] 📡 Routing Bot Request {req_id} to Fleet...")
                     
                     # 2. Convert to Task in AppSuba
-                    task_res = supabase.table("task_queue").insert({
+                    task_res = appsuba.table("task_queue").insert({
                         "url": url,
                         "status": "pending",
                         "assigned_to": None,
@@ -201,7 +204,7 @@ async def bot_request_router():
                     created_at = r.get('created_at')
                     
                     # Search for matching task
-                    task_res = supabase.table("task_queue").select("status, processed").contains("result", {"request_id": req_id}).execute()
+                    task_res = appsuba.table("task_queue").select("status, processed").contains("result", {"request_id": req_id}).execute()
                     if task_res.data:
                         t = task_res.data[0]
                         if t['status'] == 'completed' and t['processed']:
@@ -242,13 +245,13 @@ async def archive_sweeper():
     """Hourly: Moves AppSuba recent_findings → correct CockroachDB via router."""
     while True:
         try:
-            if not supabase:
-                print("[SWEEPER] Skipping: Supabase client not initialized.")
+            if not appsuba:
+                print("[SWEEPER] Skipping: AppSuba client not initialized.")
                 await asyncio.sleep(600)
                 continue
 
             print("[SWEEPER] Starting hourly archive cycle...")
-            response = supabase.table("recent_findings").select("*").execute()
+            response = appsuba.table("recent_findings").select("*").execute()
             findings = response.data or []
 
             if not findings:
@@ -308,7 +311,7 @@ async def archive_sweeper():
 
                 # Delete confirmed records from AppSuba
                 ids = [f['id'] for f in findings]
-                supabase.table("recent_findings").delete().in_("id", ids).execute()
+                appsuba.table("recent_findings").delete().in_("id", ids).execute()
                 print(f"[SWEEPER] 🗑️ Purge complete. Cleared {len(ids)} records from staging.")
 
         except Exception as e:
@@ -356,17 +359,17 @@ async def hub_scrape(req: ScrapeRequest, _=Depends(verify_api_key)):
     """The bot calls this to queue a task."""
     task_id = str(uuid.uuid4())
     
-    # 1. Save to Supabase (Source of Truth)
-    if supabase:
+    # 1. Save to AppSuba (Source of Truth)
+    if appsuba:
         try:
-            supabase.table("task_queue").insert({
+            appsuba.table("task_queue").insert({
                 "id": task_id,
                 "url": req.url,
                 "status": "pending",
                 "assigned_to": None  # Global pool
             }).execute()
         except Exception as e:
-            print(f"[HUB] Supabase Task Save Error: {e}")
+            print(f"[HUB] AppSuba Task Save Error: {e}")
 
     # 2. Local fallback/tracking
     task_info = {
@@ -401,12 +404,12 @@ async def hub_knock(req: Dict, _=Depends(verify_api_key)):
 async def bot_request_router_once():
     """Single pass of the request router for immediate response."""
     try:
-        if botsuba and supabase:
+        if botsuba and appsuba:
             req_res = botsuba.table("request").select("*").eq("status", "pending").execute()
             for req in req_res.data or []:
                 req_id = req['id']
                 print(f"[ROUTER] 📡 [PUNCHED] Routing Request {req_id}...")
-                task_res = supabase.table("task_queue").insert({
+                task_res = appsuba.table("task_queue").insert({
                     "url": req['url'], "status": "pending", "result": {"request_id": req_id}
                 }).execute()
                 if task_res.data:
@@ -436,21 +439,21 @@ async def set_main_book(req: Dict, _=Depends(verify_api_key)):
     if not user_id or not book_id:
         raise HTTPException(status_code=400, detail="Missing user_id or book_id")
     
-    if supabase:
+    if appsuba:
         try:
-            supabase.table("writer_stats").upsert({
+            appsuba.table("writer_stats").upsert({
                 "user_id": user_id,
                 "main_book_id": str(book_id)
             }).execute()
             return {"status": "success", "message": f"Main book set to {book_id}"}
         except Exception as e:
             return {"status": "error", "detail": str(e)}
-    return {"status": "error", "detail": "Supabase not connected"}
+    return {"status": "error", "detail": "AppSuba not connected"}
 
 # --- DATABASE SETUP ---
 # MainCock = DB1 (odd IDs) | MainButt = DB2 (even IDs)
-DB_URL  = os.environ.get("COCKROACH_DATABASE_URL",  "")   # MainCock
-DB_URL2 = os.environ.get("COCKROACH_DATABASE_URL_2", "")   # MainButt
+MAINCOCK_URL = os.environ.get("MAINCOCK_URL", "")
+MAINBUTT_URL = os.environ.get("MAINBUTT_URL", "")
 
 def get_db_conn(integer_id: int = 1):
     """Returns DB connection routed by integer_id parity."""
@@ -458,7 +461,7 @@ def get_db_conn(integer_id: int = 1):
         return route_db_conn(integer_id)
     # Fallback: single DB
     try:
-        return psycopg2.connect(DB_URL, cursor_factory=RealDictCursor)
+        return psycopg2.connect(MAINCOCK_URL, cursor_factory=RealDictCursor)
     except Exception as e:
         print(f"DB Connection Error: {e}")
         return None
@@ -512,10 +515,10 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
         
         # 1. Fetch Previous Stats to detect "Latest" (Chapter Change)
         prev_chapters = {}
-        if supabase:
+        if appsuba:
             try:
                 # Look at the most recent successful findings for this writer
-                prev_res = supabase.table("recent_findings").select("book_id, chapters").eq("profile_id", profile_id).order("id", { "ascending": False }).limit(20).execute()
+                prev_res = appsuba.table("recent_findings").select("book_id, chapters").eq("profile_id", profile_id).order("id", { "ascending": False }).limit(20).execute()
                 for r in prev_res.data or []:
                     if r['book_id'] not in prev_chapters:
                         prev_chapters[r['book_id']] = r['chapters']
@@ -523,9 +526,9 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
 
         # 2. Fetch Manual "Main" Book Setting
         manual_main_id = None
-        if user_id and supabase:
+        if user_id and appsuba:
             try:
-                stats_res = supabase.table("writer_stats").select("main_book_id").eq("user_id", user_id).execute()
+                stats_res = appsuba.table("writer_stats").select("main_book_id").eq("user_id", user_id).execute()
                 if stats_res.data: manual_main_id = stats_res.data[0].get("main_book_id")
             except: pass
 
@@ -574,20 +577,20 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
                 "category_tags": categories
             }
             # 1. Fast relay to AppSuba (recent_findings)
-            if supabase:
+            if appsuba:
                 try:
                     # SCHEMA-AWARE INSERT: We try to insert with categories, 
                     # but fallback to basic if the table is older.
-                    supabase.table("recent_findings").insert(finding).execute()
+                    appsuba.table("recent_findings").insert(finding).execute()
                 except Exception as e:
-                    print(f"[HUB] ⚠️ Supabase Staging Error: {e}")
+                    print(f"[HUB] ⚠️ AppSuba Staging Error: {e}")
                     # Try a "Safe Mode" insert with only the most basic columns
                     safe_finding = {
                         "penname": penname, "book": book_name, "chapters": b.get('chapterNum', 0),
                         "profile_id": profile_id, "task_id": task_id
                     }
                     try:
-                        supabase.table("recent_findings").insert(safe_finding).execute()
+                        appsuba.table("recent_findings").insert(safe_finding).execute()
                         print(f"[HUB] ✅ Safe Mode Sync successful.")
                     except:
                         print(f"[HUB] ❌ Complete Sync Failure: Staging table unreachable or restricted.")
@@ -595,7 +598,7 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
         print(f"[HUB] ✅ Data processing complete for {penname}.")
 
         # 2. Update Global Writer Stats/Profile in AppSuba
-        if user_id and supabase:
+        if user_id and appsuba:
             try:
                 # Get the highest and latest book names for profile mapping
                 highest_name = next((b['book'] for b in findings if "Highest" in b['category_tags']), "N/A")
@@ -603,7 +606,7 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
 
                 # Update writer_stats (The Core Dashboard)
                 # We fill every field we found: books, chapters, and words
-                supabase.table("writer_stats").upsert({
+                appsuba.table("writer_stats").upsert({
                     "user_id": user_id,
                     "books_count": total_books,
                     "latest_chapter_count": total_chapters,
@@ -613,19 +616,19 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
                 }).execute()
                 
                 # Update profiles table (Public Identity)
-                supabase.table("profiles").update({
+                appsuba.table("profiles").update({
                     "writer_title": f"Master of {highest_name}" if highest_name != "N/A" else "Active Author",
                     "official_role": "Elite Writer" if total_chapters > 100 else "Writer"
                 }).eq("id", user_id).execute()
                 
                 # Award 10 Cloud Marks for successful sync
-                supabase.rpc("award_cloud_marks", {"u_id": user_id, "amount": 10}).execute()
+                appsuba.rpc("award_cloud_marks", {"u_id": user_id, "amount": 10}).execute()
             except Exception as e:
                 print(f"[HUB] Profile Mapping Error: {e}")
 
         # 3. Success Notification to Bots (Mission Accomplished signal)
-        if supabase:
-            supabase.table("server_updates").insert({
+        if appsuba:
+            appsuba.table("server_updates").insert({
                 "content": f"🏆 MISSION ACCOMPLISHED: {penname} data grid updated. {total_books} books, {total_chapters} chapters synced."
             }).execute()
 
@@ -661,25 +664,25 @@ async def register_client(client_id: str):
         if not task_queue.empty():
             try:
                 task = task_queue.get_nowait()
-                # Mark as active in Supabase immediately
-                if supabase:
-                    supabase.table("task_queue").update({"status": "active"}).eq("id", task['id']).execute()
+                # Mark as active in AppSuba immediately
+                if appsuba:
+                    appsuba.table("task_queue").update({"status": "active"}).eq("id", task['id']).execute()
                 return {"task": task}
             except asyncio.QueueEmpty:
                 pass
                 
-        # 2. Check Supabase (Persistent pool)
-        if supabase:
+        # 2. Check AppSuba (Persistent pool)
+        if appsuba:
             try:
-                res = supabase.table("task_queue").select("*").eq("status", "pending").limit(1).execute()
+                res = appsuba.table("task_queue").select("*").eq("status", "pending").limit(1).execute()
                 if res.data:
                     db_task = res.data[0]
                     # ATOMIC CLAIM: Only return if we successfully marked it active
-                    claim = supabase.table("task_queue").update({"status": "active"}).eq("id", db_task['id']).eq("status", "pending").execute()
+                    claim = appsuba.table("task_queue").update({"status": "active"}).eq("id", db_task['id']).eq("status", "pending").execute()
                     if claim.data:
                         return {"task": db_task}
             except Exception as e:
-                print(f"[HUB] DB Pull Error: {e}")
+                print(f"[HUB] AppSuba Pull Error: {e}")
 
         # No task? Wait for the next one to be pushed
         try:
@@ -697,20 +700,20 @@ async def client_respond(client_id: str, request_id: str, response: dict):
     
     if "error" in response:
         print(f"[DEBUG] ❌ Node Error: {response['error']}")
-        if supabase:
-            supabase.table("task_queue").update({"status": "pending"}).eq("id", request_id).execute()
+        if appsuba:
+            appsuba.table("task_queue").update({"status": "pending"}).eq("id", request_id).execute()
         return {"status": "rotated"}
 
-    if supabase:
+    if appsuba:
         try:
-            print(f"[DEBUG] 💾 Saving raw result to Supabase...")
-            supabase.table("task_queue").update({
+            print(f"[DEBUG] 💾 Saving raw result to AppSuba...")
+            appsuba.table("task_queue").update({
                 "status": "completed",
                 "result": response
             }).eq("id", request_id).execute()
             return {"status": "ok", "detail": "Result saved. Relay worker will process soon."}
         except Exception as e:
-            print(f"[DEBUG] ❌ Supabase Update Fail: {e}")
+            print(f"[DEBUG] ❌ AppSuba Update Fail: {e}")
             return {"status": "error", "detail": str(e)}
 
     return {"status": "no_database"}

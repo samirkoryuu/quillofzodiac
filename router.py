@@ -10,10 +10,10 @@ from psycopg2.extras import RealDictCursor
 from typing import Optional
 
 # MainCock — DB1 — ODD integer IDs
-MAINCOCK_URL = os.environ.get("COCKROACH_DATABASE_URL", "")
+MAINCOCK_URL = os.environ.get("MAINCOCK_URL", "")
 
 # MainButt — DB2 — EVEN integer IDs
-MAINBUTT_URL = os.environ.get("COCKROACH_DATABASE_URL_2", "")
+MAINBUTT_URL = os.environ.get("MAINBUTT_URL", "")
 
 
 def get_db_conn(integer_id: int):

@@ -15,20 +15,20 @@ from supabase import create_client, Client
 BOTSUBA_URL = os.environ.get("BOTSUBA_URL", "")
 BOTSUBA_KEY = os.environ.get("BOTSUBA_KEY", "")
 
-_botsuba: Optional[Client] = None
+botsuba: Optional[Client] = None
 
 
 def _get_botsuba() -> Optional[Client]:
-    global _botsuba
-    if _botsuba:
-        return _botsuba
+    global botsuba
+    if botsuba:
+        return botsuba
     if not BOTSUBA_URL or not BOTSUBA_KEY:
         print("⚠️ [BULK_PUSH] BotSuba not configured. Worker will idle.")
         return None
     try:
-        _botsuba = create_client(BOTSUBA_URL, BOTSUBA_KEY)
+        botsuba = create_client(BOTSUBA_URL, BOTSUBA_KEY)
         print("✅ [BULK_PUSH] BotSuba connected.")
-        return _botsuba
+        return botsuba
     except Exception as e:
         print(f"❌ [BULK_PUSH] BotSuba init error: {e}")
         return None

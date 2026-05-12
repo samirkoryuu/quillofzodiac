@@ -16,20 +16,20 @@ from typing import Optional
 SEEKSUBA_URL = os.environ.get("SEEKSUBA_URL", "")
 SEEKSUBA_KEY = os.environ.get("SEEKSUBA_KEY", "")
 
-_seeksupabase: Optional[Client] = None
+_seeksuba: Optional[Client] = None
 _id_cache: dict[str, int] = {}  # external_id → integer_id (in-memory cache)
 
 def _get_client() -> Optional[Client]:
-    global _seeksupabase
-    if _seeksupabase:
-        return _seeksupabase
+    global _seeksuba
+    if _seeksuba:
+        return _seeksuba
     if not SEEKSUBA_URL or not SEEKSUBA_KEY:
         print("⚠️ [SEQUENCER] SeekSuba not configured. Falling back to single-DB mode.")
         return None
     try:
-        _seeksupabase = create_client(SEEKSUBA_URL, SEEKSUBA_KEY)
+        _seeksuba = create_client(SEEKSUBA_URL, SEEKSUBA_KEY)
         print("✅ [SEQUENCER] SeekSuba connected.")
-        return _seeksupabase
+        return _seeksuba
     except Exception as e:
         print(f"❌ [SEQUENCER] SeekSuba init error: {e}")
         return None
