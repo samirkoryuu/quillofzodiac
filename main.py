@@ -132,7 +132,8 @@ async def stats_reconciliation_worker():
                                 latest  = shelf[0]
                                 
                                 stats_update = {
-                                    "penname": real_penname, # Keep this as the WebNovel identity
+                                    "penname": real_penname, 
+                                    "books_count": len(shelf), # THE MISSING PIECE: Total book count
                                     "latest_chapter_book_name": latest.get('book'),
                                     "latest_chapter_book_chapters": latest.get('chapters', 0),
                                     "highest_chapter_book_name": highest.get('book'),
