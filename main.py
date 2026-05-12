@@ -87,44 +87,55 @@ async def stats_reconciliation_worker():
     while True:
         try:
             if supabase:
-                # 1. Look for tasks processed by the Node.js engine but not yet synced to stats
-                res = supabase.table("task_queue").select("id, assigned_to").eq("processed", True).eq("stats_updated", False).limit(5).execute()
+                # 1. Look for tasks processed by Node.js but not yet synced to stats
+                res = supabase.table("task_queue").select("*").eq("processed", True).eq("stats_updated", False).limit(5).execute()
                 
                 for task in res.data or []:
                     task_id = task['id']
-                    user_id = task['assigned_to']
+                    print(f"[STATS] ⚖️ Analyzing Task {task_id} for reconciliation...")
                     
-                    # 2. Get ALL findings for this specific mission to identify the writer
-                    findings_res = supabase.table("recent_findings").select("*").eq("task_id", task_id).execute()
-                    findings = findings_res.data or []
-                    
-                    if findings:
-                        penname = findings[0]['penname']
-                        print(f"[STATS] ⚖️ Reconciling stats for {penname}...")
+                    # 2. Get the penname from the findings linked to this task
+                    findings_res = supabase.table("recent_findings").select("*").eq("task_id", task_id).limit(1).execute()
+                    if findings_res.data:
+                        f_sample = findings_res.data[0]
+                        penname = f_sample.get('penname')
                         
-                        # 3. Fetch the full shelf for this penname to distinguish Main/Highest/Latest
-                        shelf_res = supabase.table("recent_findings").select("*").eq("penname", penname).execute()
-                        shelf = shelf_res.data or []
+                        # 3. Find the USER_ID of the writer with this penname
+                        user_res = supabase.table("profiles").select("id").eq("penname", penname).execute()
+                        if not user_res.data:
+                            # Fallback: check writer_stats for penname if profiles doesn't have it
+                            user_res = supabase.table("writer_stats").select("user_id").eq("penname", penname).execute()
                         
-                        if shelf:
-                            # LOGIC: Differentiate books
-                            highest = max(shelf, key=lambda x: x.get('chapters', 0))
-                            latest  = shelf[0] # The one we just found is usually the latest update
+                        if user_res.data:
+                            target_user_id = user_res.data[0].get('id') or user_res.data[0].get('user_id')
                             
-                            # 4. Perfect Sync to writer_stats
-                            stats_update = {
-                                "latest_chapter_book_name": latest.get('book'),
-                                "latest_chapter_book_chapters": latest.get('chapters', 0),
-                                "highest_chapter_book_name": highest.get('book'),
-                                "highest_chapter_book_chapters": highest.get('chapters', 0),
-                                "last_updated": "now()"
-                            }
+                            # 4. Fetch the full shelf to calculate Highest/Latest/Main
+                            shelf_res = supabase.table("recent_findings").select("*").eq("penname", penname).execute()
+                            shelf = shelf_res.data or []
                             
-                            supabase.table("writer_stats").update(stats_update).eq("user_id", user_id).execute()
-                            
-                            # 5. Mark as fully synced
-                            supabase.table("task_queue").update({"stats_updated": True}).eq("id", task_id).execute()
-                            print(f"[STATS] ✅ Perfect Sync complete for {penname}.")
+                            if shelf:
+                                highest = max(shelf, key=lambda x: x.get('chapters', 0))
+                                latest  = shelf[0] # Most recent entry
+                                
+                                # 5. PERFECT SYNC to writer_stats
+                                stats_update = {
+                                    "latest_chapter_book_name": latest.get('book'),
+                                    "latest_chapter_book_chapters": latest.get('chapters', 0),
+                                    "highest_chapter_book_name": highest.get('book'),
+                                    "highest_chapter_book_chapters": highest.get('chapters', 0),
+                                    "last_updated": "now()"
+                                }
+                                supabase.table("writer_stats").update(stats_update).eq("user_id", target_user_id).execute()
+                                
+                                # 6. SUCCESS: Flip the switch
+                                supabase.table("task_queue").update({"stats_updated": True}).eq("id", task_id).execute()
+                                print(f"[STATS] ✅ Perfect Sync complete for {penname} (User: {target_user_id})")
+                            else:
+                                print(f"[STATS] ⚠️ No shelf found in recent_findings for {penname}")
+                        else:
+                            print(f"[STATS] ⚠️ Could not find a User Account for penname: {penname}")
+                    else:
+                        print(f"[STATS] ⚠️ Task {task_id} has no associated findings in recent_findings yet.")
                             
         except Exception as e:
             print(f"[STATS] ❌ Sync Error: {e}")
