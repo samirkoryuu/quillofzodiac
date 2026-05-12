@@ -87,38 +87,52 @@ async def stats_reconciliation_worker():
     while True:
         try:
             if supabase:
-                # 1. Look for tasks processed by Node.js but not yet synced to stats
+                # 1. Look for processed tasks
                 res = supabase.table("task_queue").select("*").eq("processed", True).eq("stats_updated", False).limit(5).execute()
                 
                 for task in res.data or []:
                     task_id = task['id']
-                    print(f"[STATS] ⚖️ Analyzing Task {task_id} for reconciliation...")
+                    print(f"[STATS] ⚖️ Double-Sync Analyzing Task {task_id}...")
                     
-                    # 2. Get the penname from the findings linked to this task
+                    # 2. Get the real WebNovel penname from findings
                     findings_res = supabase.table("recent_findings").select("*").eq("task_id", task_id).limit(1).execute()
                     if findings_res.data:
-                        f_sample = findings_res.data[0]
-                        penname = f_sample.get('penname')
+                        real_penname = findings_res.data[0].get('penname')
                         
-                        # 3. Find the USER_ID of the writer with this penname
-                        user_res = supabase.table("profiles").select("id").eq("penname", penname).execute()
-                        if not user_res.data:
-                            # Fallback: check writer_stats for penname if profiles doesn't have it
-                            user_res = supabase.table("writer_stats").select("user_id").eq("penname", penname).execute()
+                        # 3. DOUBLE-VERIFICATION LOOKUP
+                        # Check Profile table for EITHER penname OR discord name match
+                        # (Note: We also try to link via the bot owner as a fallback)
+                        target_user_id = None
                         
+                        # A. Try Penname Match
+                        user_res = supabase.table("profiles").select("id").eq("penname", real_penname).execute()
                         if user_res.data:
-                            target_user_id = user_res.data[0].get('id') or user_res.data[0].get('user_id')
-                            
-                            # 4. Fetch the full shelf to calculate Highest/Latest/Main
-                            shelf_res = supabase.table("recent_findings").select("*").eq("penname", penname).execute()
+                            target_user_id = user_res.data[0]['id']
+                        
+                        # B. Try Discord Name Match (Fallback)
+                        if not target_user_id:
+                            # We check writer_stats for anyone currently using this penname or discord name
+                            stats_res = supabase.table("writer_stats").select("user_id").or_(f"penname.eq.{real_penname},discord_display_name.eq.{real_penname}").execute()
+                            if stats_res.data:
+                                target_user_id = stats_res.data[0]['user_id']
+                                
+                        # C. Final Fallback: Node Identity
+                        if not target_user_id:
+                            node_res = supabase.table("node_identity").select("user_id").eq("node_id", task.get('assigned_to')).execute()
+                            if node_res.data:
+                                target_user_id = node_res.data[0]['user_id']
+
+                        if target_user_id:
+                            # 4. PERFECT SYNC
+                            shelf_res = supabase.table("recent_findings").select("*").eq("penname", real_penname).execute()
                             shelf = shelf_res.data or []
                             
                             if shelf:
                                 highest = max(shelf, key=lambda x: x.get('chapters', 0))
-                                latest  = shelf[0] # Most recent entry
+                                latest  = shelf[0]
                                 
-                                # 5. PERFECT SYNC to writer_stats
                                 stats_update = {
+                                    "penname": real_penname, # Keep this as the WebNovel identity
                                     "latest_chapter_book_name": latest.get('book'),
                                     "latest_chapter_book_chapters": latest.get('chapters', 0),
                                     "highest_chapter_book_name": highest.get('book'),
@@ -127,15 +141,17 @@ async def stats_reconciliation_worker():
                                 }
                                 supabase.table("writer_stats").update(stats_update).eq("user_id", target_user_id).execute()
                                 
-                                # 6. SUCCESS: Flip the switch
+                                # If we found them, let's also update the profiles table to link the penname permanently
+                                try:
+                                    supabase.table("profiles").update({"penname": real_penname}).eq("id", target_user_id).execute()
+                                except: pass
+                                
                                 supabase.table("task_queue").update({"stats_updated": True}).eq("id", task_id).execute()
-                                print(f"[STATS] ✅ Perfect Sync complete for {penname} (User: {target_user_id})")
+                                print(f"[STATS] ✅ Double-Verified Sync complete for {real_penname}")
                             else:
-                                print(f"[STATS] ⚠️ No shelf found in recent_findings for {penname}")
+                                print(f"[STATS] ⚠️ No findings for {real_penname}")
                         else:
-                            print(f"[STATS] ⚠️ Could not find a User Account for penname: {penname}")
-                    else:
-                        print(f"[STATS] ⚠️ Task {task_id} has no associated findings in recent_findings yet.")
+                            print(f"[STATS] ⚠️ Could not verify identity for {real_penname} via any channel.")
                             
         except Exception as e:
             print(f"[STATS] ❌ Sync Error: {e}")
