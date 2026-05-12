@@ -37,6 +37,20 @@ try:
 except Exception as e:
     print(f"❌ BotSuba Init Error: {e}")
 
+# AppSuba Configuration (The Dashboard Database - source of truth for findings & stats)
+APPSUBA_URL = os.environ.get("SUPABASE_URL") or os.environ.get("APPSUBA_URL") or ""
+APPSUBA_KEY = os.environ.get("SUPABASE_SERVICE_KEY") or os.environ.get("APPSUBA_KEY") or ""
+supabase: Optional[Client] = None
+
+try:
+    if APPSUBA_URL and APPSUBA_KEY and "..." not in APPSUBA_KEY:
+        supabase = create_client(APPSUBA_URL, APPSUBA_KEY)
+        print("✅ AppSuba Client Initialized.")
+    else:
+        print("⚠️ AppSuba Client skipped: Set SUPABASE_URL and SUPABASE_SERVICE_KEY on Render.")
+except Exception as e:
+    print(f"❌ AppSuba Init Error: {e}")
+
 app = FastAPI(title="HiveSlave Scraper Hub")
 
 app.add_middleware(
