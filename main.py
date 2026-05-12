@@ -197,7 +197,19 @@ async def bot_request_router():
                             botsuba.table("request").update({"status": "failed", "comment": "Failure"}).eq("id", req_id).execute()
                     
                     # 24h Timeout check: 1min before 24h cleanup
-                    # (Implementation of the user's specific rule)
+                    if created_at:
+                        try:
+                            from datetime import datetime, timezone, timedelta
+                            created_dt = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+                            age = datetime.now(timezone.utc) - created_dt
+                            if age > timedelta(hours=23, minutes=59):
+                                botsuba.table("request").update({
+                                    "status": "failed", 
+                                    "comment": "Failure (24h Timeout)"
+                                }).eq("id", req_id).execute()
+                                print(f"[ROUTER] ⏰ Bot Request {req_id} Timed Out.")
+                        except Exception as te:
+                            print(f"[ROUTER] Timeout Check Error: {te}")
                     
         except Exception as e:
             print(f"[ROUTER] ❌ Router Error: {e}")
@@ -361,6 +373,32 @@ async def hub_scrape(req: ScrapeRequest, _=Depends(verify_api_key)):
         event.set()
     
     return {"status": "queued", "task_id": task_id}
+
+@app.post("/knock")
+async def hub_knock(req: Dict, _=Depends(verify_api_key)):
+    """The bots call this to 'punch' the hub and wake it up."""
+    message = req.get("message", "Look at my requests!")
+    print(f"[PUNCH] 🥊 Bot says: '{message}'")
+    
+    # Immediately trigger a request routing check instead of waiting 5s
+    asyncio.create_task(bot_request_router_once())
+    return {"status": "ok", "message": "Ouch! Checking requests now..."}
+
+async def bot_request_router_once():
+    """Single pass of the request router for immediate response."""
+    try:
+        if botsuba and supabase:
+            req_res = botsuba.table("request").select("*").eq("status", "pending").execute()
+            for req in req_res.data or []:
+                req_id = req['id']
+                print(f"[ROUTER] 📡 [PUNCHED] Routing Request {req_id}...")
+                task_res = supabase.table("task_queue").insert({
+                    "url": req['url'], "status": "pending", "result": {"request_id": req_id}
+                }).execute()
+                if task_res.data:
+                    botsuba.table("request").update({"status": "active"}).eq("id", req_id).execute()
+    except Exception as e:
+        print(f"[ROUTER] ❌ Punch Error: {e}")
 
 @app.get("/task-status/{task_id}")
 async def check_task(task_id: str, _=Depends(verify_api_key)):
