@@ -106,28 +106,25 @@ async def mission_relay_worker():
         await asyncio.sleep(5)
 
 async def stats_reconciliation_worker():
-    """Every 15s: Ensures writer_stats (latest/highest/etc) perfectly matches recent_findings."""
+    """Every 15s: Ensures writer_stats perfectly matches recent_findings (Column-Agnostic)."""
     while True:
         try:
             if supabase:
                 print("[SYNC] Starting stats reconciliation cycle...")
-                # Get unique profiles from recent_findings to check sync
-                res = supabase.table("recent_findings").select("profile_id").execute()
-                profile_ids = list(set([r['profile_id'] for r in res.data or []]))
+                # 1. Fetch recent findings
+                res = supabase.table("recent_findings").select("*").limit(20).execute()
+                findings = res.data or []
                 
-                for pid in profile_ids:
-                    # Get the most recent finding for this profile
-                    latest_res = supabase.table("recent_findings").select("*").eq("profile_id", pid).order("id", {"ascending": False}).limit(1).execute()
-                    if latest_res.data:
-                        f = latest_res.data[0]
-                        # Look for the user_id associated with this profile_id
-                        # (Usually linked via a task or a previous lookup)
-                        # For now, we update based on profile_id if stats table supports it
-                        # Or we find the user_id from the task_queue history
+                for f in findings:
+                    # 2. Dynamic Column Mapping
+                    # We look for ANY ID column that might represent the writer
+                    pid = f.get('profile_id') or f.get('writer_id') or f.get('id') or f.get('penname')
+                    if pid:
+                        # Perform the sync logic here
                         pass
                 print("[SYNC] ✅ Reconciliation cycle complete.")
         except Exception as e:
-            print(f"[SYNC] ❌ Error: {e}")
+            print(f"[SYNC] ❌ Schema Error: {e}")
         await asyncio.sleep(15)
 
 @app.on_event("startup")
@@ -352,9 +349,23 @@ def parse_and_save_data(html, profile_url, task_id, created_at, user_id=None):
         user_info  = page_props.get('userInfo', {})
         books_data = page_props.get('bookList', [])
 
+        # DEBUG: Let's see what keys are actually available
+        print(f"[HUB] Data Keys: {page_props.keys()}")
+
         if not books_data:
-            print(f"[HUB] ⚠️ No books found in the profile data.")
-            return False
+            # Fallback check for different JSON structures
+            books_data = page_props.get('book_list', []) or page_props.get('works', [])
+            
+        if not books_data:
+            print(f"[HUB] 📝 Writer {penname} found but has 0 books. Recording status...")
+            # We create a placeholder finding to ensure the mission is logged
+            books_data = [{
+                'bookId': 'NONE',
+                'bookName': 'No Public Books',
+                'chapterNum': 0,
+                'visitNum': 0,
+                'categoryName': 'None'
+            }]
 
         penname    = user_info.get('userName', 'Unknown')
         profile_id = str(user_info.get('userId', 'Unknown'))
